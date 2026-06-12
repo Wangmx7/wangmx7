@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xSparkOps — AI 原生多智能体协作平台</title>
+  <link rel="stylesheet" href="共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="共享/gate/gate.css">
+  <script src="共享/gate/site-config.js"></script>
+  <script src="共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="root.title">
+  <div class="xs-app demo-layout">
+    <aside id="sidebar"></aside>
+    <main class="xs-main demo-main">
+      <header class="demo-page-head">
+        <h1 id="pageTitle">知识</h1>
+        <p id="pageDesc">知识库管理与问答评测</p>
+      </header>
+      <div class="demo-page-body">
+        <div class="demo-placeholder" id="pagePlaceholder" data-i18n="common.selectMenuHint">在左侧选择功能模块，查看说明与文档链接；已上线的模块（如 AI 观测、审批中心）将打开完整原型页</div>
+        <p class="demo-doc-links" id="pageDocLinks"></p>
+      </div>
+    </main>
+  </div>
+
+  <script src="共享/sidebar/sidebar-config.js"></script>
+  <script src="共享/i18n/locales.js"></script>
+  <script src="共享/i18n/i18n.js"></script>
+  <script src="共享/sidebar/icons.js"></script>
+  <script src="共享/sidebar/sidebar.js"></script>
+  <script>
+    function pageMeta(id) {
+      const item = SIDEBAR_CONFIG.items.find(i => i.id === id);
+      const title = XSparkI18n.t(`root.pages.${id}.title`);
+      const desc = XSparkI18n.t(`root.pages.${id}.desc`);
+      if (title !== `root.pages.${id}.title`) return { title, desc };
+      return { title: item?.label || id, desc: '' };
+    }
+
+    function applyPageMeta(id) {
+      const item = SIDEBAR_CONFIG.items.find(i => i.id === id);
+      const meta = pageMeta(id);
+      document.getElementById('pageTitle').textContent = meta.title;
+      document.getElementById('pageDesc').textContent = meta.desc;
+      const ph = document.getElementById('pagePlaceholder');
+      const status = item?.status || 'placeholder';
+      if (ph) {
+        const desc = meta.desc || (XSparkI18n.isEn() ? 'Module content' : '模块内容');
+        ph.textContent = status === 'wip'
+          ? XSparkI18n.t('common.placeholderWip', { desc })
+          : XSparkI18n.t('common.placeholderPending', { desc });
+      }
+      const docLinks = document.getElementById('pageDocLinks');
+      if (docLinks && item?.featureModule) {
+        docLinks.innerHTML = `
+          <a href="文档/功能列表/modules/${item.featureModule}.md">${XSparkI18n.t('common.docFeatureList')}</a>
+          ·
+          <a href="文档/用户手册/modules/">${XSparkI18n.t('common.docManual')}</a>
+          ·
+          <a href="prd/index.html">需求 PRD 文档</a>`;
+      } else if (docLinks) {
+        docLinks.textContent = '';
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const initialId = params.get('id') || SIDEBAR_CONFIG.defaultActive;
+
+    XSparkSidebar.init('#sidebar', {
+      activeId: initialId,
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate({ id }) {
+        applyPageMeta(id);
+      }
+    });
+    XSparkI18n.applyDom(document);
+    XSparkI18n.onChange(() => {
+      XSparkI18n.applyDom(document);
+      const active = document.querySelector('.xs-sidebar__item.is-active')?.dataset.id || initialId;
+      applyPageMeta(active);
+    });
+    applyPageMeta(initialId);
+  </script>
+</body>
+</html>

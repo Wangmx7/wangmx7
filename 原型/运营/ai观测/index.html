@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI观测 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="observability.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="obs.pageTitle">
+  <div class="xs-app obs-app">
+    <aside id="sidebar"></aside>
+
+    <div class="xs-main obs-main">
+      <header class="obs-page-head">
+        <div class="obs-page-title">
+          <h1 data-i18n="obs.page.title">AI观测</h1>
+          <p data-i18n="obs.page.subtitle">查看 LLM 应用运行概览，下钻 Trace 定位延迟与错误，并跟踪 Session、Token 与成本变化</p>
+        </div>
+      </header>
+
+      <nav class="obs-tabs" data-i18n-aria="obs.tabsAria" aria-label="观测模块">
+        <button class="obs-tab active" data-tab="dashboard" data-i18n="obs.tabs.dashboard">Dashboard</button>
+        <button class="obs-tab" data-tab="traces" data-i18n="obs.tabs.traces">Tracing</button>
+      </nav>
+
+      <div class="obs-content" id="obsContent"></div>
+    </div>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="trace-filters.js"></script>
+  <script src="ai-observability.js"></script>
+  <script src="observability.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: 'ai-observability',
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+    Observability.init();
+  </script>
+</body>
+</html>

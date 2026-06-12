@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="knowledge.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="knowledge.pageTitle">
+  <div class="xs-app kb-app">
+    <aside id="sidebar"></aside>
+
+    <div class="xs-main kb-main">
+      <header class="kb-page-head">
+        <div class="kb-page-title">
+          <h1 data-i18n="knowledge.page.title">知识</h1>
+          <p data-i18n="knowledge.page.subtitle">上传与组织知识库文档，配置检索策略并评测问答效果</p>
+        </div>
+      </header>
+
+      <div class="kb-content" id="kbContent"></div>
+    </div>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="knowledge.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: 'knowledge',
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+    Knowledge.init();
+  </script>
+</body>
+</html>

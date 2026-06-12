@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>审批中心 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="approval.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="approval.pageTitle">
+  <div class="xs-app apv-app">
+    <aside id="sidebar"></aside>
+
+    <div class="xs-main apv-main">
+      <header class="apv-page-head">
+        <div class="apv-page-title">
+          <h1 data-i18n="approval.page.title">审批中心</h1>
+          <p data-i18n="approval.page.subtitle">查看待办、处理审批并追溯历史；覆盖 L3 敏感操作、平台发布与 Skillhub 上架，支持 AI 风险总结与提交前预审</p>
+        </div>
+      </header>
+
+      <nav class="apv-tabs" data-i18n-aria="approval.tabsAria" aria-label="审批状态">
+        <button class="apv-tab active" data-tab="pending" data-i18n="approval.tabs.pending">待我审批</button>
+        <button class="apv-tab" data-tab="history" data-i18n="approval.tabs.history">审批历史</button>
+        <button class="apv-tab" data-tab="mine" data-i18n="approval.tabs.mine">我发起的</button>
+      </nav>
+
+      <div class="apv-content" id="apvContent"></div>
+    </div>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="../../../共享/mock/approval-bridge.js"></script>
+  <script src="approval-filters.js"></script>
+  <script src="approval-ai-summary.js"></script>
+  <script src="approval.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: 'approval',
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+    Approval.init();
+  </script>
+</body>
+</html>

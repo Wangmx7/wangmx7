@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理后台 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+  <style>
+    .admin-main {
+      margin-top: var(--xs-topbar-h);
+      margin-left: var(--xs-sidebar-w);
+      min-height: calc(100vh - var(--xs-topbar-h));
+      padding: 32px;
+      background: #F3F5F8;
+      font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+    }
+    .admin-card {
+      max-width: 720px;
+      background: #fff;
+      border: 1px solid #E8ECF0;
+      border-radius: 12px;
+      padding: 48px 32px;
+      text-align: center;
+      color: #7D8696;
+    }
+    .admin-card h1 {
+      font-size: 20px;
+      color: #1D232D;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="xs-app">
+    <aside id="sidebar"></aside>
+    <main class="admin-main">
+      <div class="admin-card">
+        <h1>管理后台</h1>
+        <p>平台管理功能原型占位，后续可接入租户、权限与系统配置等模块。</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: '',
+      activeAiConsole: 'admin',
+      onUserMenu({ label }) {
+        alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+{
+  "meta": {
+    "product": "xSparkOps",
+    "version": "0.2",
+    "updated": "2026-06-11",
+    "configSource": "共享/sidebar/sidebar-config.js"
+  },
+  "modules": [
+    {
+      "id": "dashboard",
+      "name": "工作台",
+      "sidebarId": "dashboard",
+      "section": "概览",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "chat",
+      "name": "对话",
+      "sidebarId": "chat",
+      "section": "概览",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "agent-hub",
+      "name": "Agenthub",
+      "sidebarId": "agent-hub",
+      "section": "集市",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "skill-hub",
+      "name": "Skillhub",
+      "sidebarId": "skill-hub",
+      "section": "集市",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "agent",
+      "name": "智能体",
+      "sidebarId": "agent",
+      "section": "资产",
+      "prototype": "原型/资产/智能体/index.html",
+      "status": "ready",
+      "features": [
+        { "id": "agt-list", "name": "Agent 列表与状态筛选", "priority": "P0", "status": "done" },
+        { "id": "agt-wizard", "name": "五步创建向导（Clawith 式）", "priority": "P0", "status": "done" },
+        { "id": "agt-approval", "name": "提交审批与审批中心联动", "priority": "P0", "status": "done" },
+        { "id": "agt-runs", "name": "执行记录与 AI 观测 Trace 链接", "priority": "P0", "status": "done" },
+        { "id": "agt-playground", "name": "Playground 调试", "priority": "P1", "status": "done" }
+      ]
+    },
+    {
+      "id": "skill",
+      "name": "技能",
+      "sidebarId": "skill",
+      "section": "资产",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "mcp",
+      "name": "MCP",
+      "sidebarId": "mcp",
+      "section": "资产",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "plugin",
+      "name": "插件",
+      "sidebarId": "plugin",
+      "section": "资产",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "knowledge",
+      "name": "知识",
+      "sidebarId": "knowledge",
+      "section": "资产",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "approval",
+      "name": "审批中心",
+      "sidebarId": "approval",
+      "section": "运营",
+      "prototype": "原型/运营/审批中心/index.html",
+      "status": "ready",
+      "detail": "文档/功能列表/modules/approval.md",
+      "features": [
+        { "id": "apv-tabs", "name": "状态 Tab（待我审批 / 审批历史 / 我发起的）", "priority": "P0", "status": "done" },
+        { "id": "apv-kpi", "name": "三类审批 KPI 卡片", "priority": "P0", "status": "done" },
+        { "id": "apv-list", "name": "审批列表（9 列）", "priority": "P0", "status": "done" },
+        { "id": "apv-filters", "name": "类型 / Workspace / 搜索 / Filters", "priority": "P0", "status": "done" },
+        { "id": "apv-drawer", "name": "详情抽屉（三类型差异化）", "priority": "P0", "status": "done" },
+        { "id": "apv-actions", "name": "通过 / 拒绝 + 备注", "priority": "P0", "status": "done" },
+        { "id": "apv-ai-review", "name": "AI 预审报告展示", "priority": "P1", "status": "done" },
+        { "id": "apv-ai-summary", "name": "AI 总结（提交前预审 + 审批前分析）", "priority": "P1", "status": "done" }
+      ]
+    },
+    {
+      "id": "ops-analysis",
+      "name": "运营分析",
+      "sidebarId": "ops-analysis",
+      "section": "运营",
+      "prototype": "原型/运营/运营分析/index.html",
+      "status": "ready",
+      "detail": "文档/功能列表/modules/ops-analysis.md",
+      "features": [
+        { "id": "ops-tabs", "name": "7 看板 Tab 框架", "priority": "P0", "status": "done" },
+        { "id": "ops-toolbar", "name": "Workspace / 时间范围 / 导出", "priority": "P0", "status": "done" },
+        { "id": "ops-overview", "name": "平台总览 KPI + 趋势 + 健康度", "priority": "P0", "status": "done", "manual": "文档/用户手册/modules/ops-analysis-overview.md" },
+        { "id": "ops-alerts-ai", "name": "需关注 + AI 异常解读", "priority": "P1", "status": "done" },
+        { "id": "ops-ai-insight", "name": "AI 智能运营（默认洞察 + 追问）", "priority": "P1", "status": "done" },
+        { "id": "ops-usage", "name": "使用分析看板", "priority": "P0", "status": "done" },
+        { "id": "ops-assets", "name": "资产效能看板（含四类 AI 资产可视化）", "priority": "P0", "status": "done" },
+        { "id": "ops-cost", "name": "成本效率看板", "priority": "P0", "status": "done" },
+        { "id": "ops-approval", "name": "审批发布看板", "priority": "P0", "status": "done" },
+        { "id": "ops-hub", "name": "集市运营看板", "priority": "P1", "status": "done" },
+        { "id": "ops-quality", "name": "质量反馈看板", "priority": "P0", "status": "done" },
+        { "id": "ops-tab-ai", "name": "看板内 AI 追问浮动按钮", "priority": "P2", "status": "done" },
+        { "id": "ops-cross-links", "name": "跳转 AI观测 / AI治理 / 审批中心", "priority": "P1", "status": "done" },
+        { "id": "ops-weekly-report", "name": "运营周报导出", "priority": "P2", "status": "done" }
+      ]
+    },
+    {
+      "id": "ai-observability",
+      "name": "AI观测",
+      "sidebarId": "ai-observability",
+      "section": "运营",
+      "prototype": "原型/运营/ai观测/index.html",
+      "status": "ready",
+      "detail": "文档/功能列表/modules/ai-observability.md",
+      "features": [
+        { "id": "obs-shell", "name": "Sidebar 集成与 Tab 框架", "priority": "P0", "status": "done" },
+        { "id": "obs-kpi", "name": "Dashboard KPI 卡片", "priority": "P0", "status": "done" },
+        { "id": "obs-dashboard-ai", "name": "Dashboard AI 智能观测", "priority": "P1", "status": "done" },
+        { "id": "obs-charts", "name": "Dashboard 趋势图与模型排行", "priority": "P1", "status": "done" },
+        { "id": "trace-list", "name": "Tracing 12 列列表", "priority": "P0", "status": "done", "manual": "文档/用户手册/modules/ai-observability-tracing.md" },
+        { "id": "workspace-filter", "name": "Workspace 工具栏筛选", "priority": "P0", "status": "done" },
+        { "id": "trace-filters", "name": "Filters 多字段筛选", "priority": "P0", "status": "done" },
+        { "id": "ai-filter", "name": "AI 自然语言筛选", "priority": "P1", "status": "done" },
+        { "id": "trace-search", "name": "Tracing 列表搜索", "priority": "P0", "status": "done" },
+        { "id": "tracing-ai-panel", "name": "Tracing AI 观测面板", "priority": "P1", "status": "done" },
+        { "id": "trace-drawer", "name": "Trace 详情抽屉", "priority": "P0", "status": "done", "manual": "文档/用户手册/modules/ai-observability-tracing.md" },
+        { "id": "trace-topology", "name": "Topology 拓扑图", "priority": "P1", "status": "done" },
+        { "id": "trace-pagination", "name": "Tracing 分页", "priority": "P1", "status": "wip" },
+        { "id": "sessions-users-tab", "name": "Sessions / Users Tab", "priority": "—", "status": "removed" },
+        { "id": "level-env-filter", "name": "Level / Environment 筛选", "priority": "—", "status": "removed" }
+      ]
+    },
+    {
+      "id": "feedback",
+      "name": "反馈",
+      "sidebarId": "feedback",
+      "section": "运营",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "ai-governance",
+      "name": "AI治理",
+      "sidebarId": "ai-governance",
+      "section": "治理",
+      "prototype": "原型/治理/ai治理/index.html",
+      "status": "ready",
+      "detail": "文档/功能列表/modules/ai-governance.md",
+      "features": [
+        { "id": "gov-shell", "name": "Sidebar 集成与 Tab 框架", "priority": "P0", "status": "done" },
+        { "id": "gov-kpi", "name": "概览 KPI 与风险告警", "priority": "P0", "status": "done" },
+        { "id": "gov-ai-insight", "name": "AI 智能治理洞察与追问", "priority": "P1", "status": "done" },
+        { "id": "gov-charts", "name": "活动趋势与资源分布", "priority": "P1", "status": "done" },
+        { "id": "gov-audit-list", "name": "用户操作审计列表（8 列）", "priority": "P0", "status": "done" },
+        { "id": "gov-audit-filters", "name": "用户操作 Filters + 搜索 + Workspace", "priority": "P0", "status": "done" },
+        { "id": "gov-audit-drawer", "name": "操作详情抽屉 + CSV 导出占位", "priority": "P1", "status": "done" },
+        { "id": "gov-tool-list", "name": "工具执行列表（9 列）", "priority": "P0", "status": "done" },
+        { "id": "gov-tool-filters", "name": "工具执行 Filters + 详情抽屉", "priority": "P0", "status": "done" },
+        { "id": "gov-trace-link", "name": "Trace 关联跳转（占位）", "priority": "P2", "status": "done" }
+      ]
+    },
+    {
+      "id": "workspace-settings",
+      "name": "Workspace设置",
+      "sidebarId": "workspace-settings",
+      "section": "设置",
+      "prototype": null,
+      "status": "placeholder",
+      "features": []
+    },
+    {
+      "id": "console-admin",
+      "name": "管理后台",
+      "sidebarId": null,
+      "section": "控制台",
+      "prototype": "原型/控制台/管理后台/index.html",
+      "status": "wip",
+      "features": []
+    },
+    {
+      "id": "console-ops",
+      "name": "运维后台",
+      "sidebarId": null,
+      "section": "控制台",
+      "prototype": "原型/控制台/运维后台/index.html",
+      "status": "ready",
+      "features": [
+        {
+          "id": "ops-user-mgmt",
+          "name": "用户管理",
+          "priority": "P0",
+          "status": "done"
+        }
+      ]
+    }
+  ]
+}

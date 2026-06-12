@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能体 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="agent.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="agent.pageTitle">
+  <div class="xs-app agt-app">
+    <aside id="sidebar"></aside>
+
+    <div class="xs-main agt-main">
+      <header class="agt-page-head">
+        <div class="agt-page-title">
+          <h1 data-i18n="agent.page.title">智能体</h1>
+          <p data-i18n="agent.page.subtitle">创建、调试并发布智能体，配置模型、提示词、工具与发布范围；提交审批后由审批中心放行</p>
+        </div>
+      </header>
+
+      <div class="agt-content" id="agtContent"></div>
+    </div>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script src="../../../共享/mock/approval-bridge.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="agent-wizard.js"></script>
+  <script src="agent.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: 'agent',
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+    Agent.init();
+  </script>
+</body>
+</html>

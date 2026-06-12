@@ -1,0 +1,236 @@
+.ops-app .xs-main {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--xs-topbar-h));
+  margin-top: var(--xs-topbar-h);
+  margin-left: var(--xs-sidebar-w);
+  background: #F3F5F8;
+  font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+}
+
+#opsContent {
+  flex: 1;
+  padding: 16px 20px 24px;
+  overflow: auto;
+}
+
+.ops-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: #E8ECF0;
+  border-radius: 10px;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.ops-tab {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #545D6D;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.ops-tab:hover { color: #1D232D; }
+
+.ops-tab.active {
+  background: #fff;
+  color: #1D232D;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(16, 28, 40, 0.08);
+}
+
+.ops-panel {
+  background: #fff;
+  border: 1px solid #E8ECF0;
+  border-radius: 12px;
+  padding: 20px 24px 8px;
+  box-shadow: 0 1px 2px rgba(16, 28, 40, 0.04);
+}
+
+.ops-panel__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1D232D;
+  margin-bottom: 16px;
+}
+
+.ops-panel__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.ops-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 12px;
+  height: 36px;
+  border: 1px solid #E8ECF0;
+  border-radius: 8px;
+  background: #fff;
+  color: #7D8696;
+}
+
+.ops-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: #1D232D;
+  outline: none;
+}
+
+.ops-search-input::placeholder { color: #A0A8B3; }
+
+.ops-panel__count {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #7D8696;
+  white-space: nowrap;
+}
+
+.ops-user-list {
+  margin-top: 8px;
+}
+
+.ops-user-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid #F0F2F5;
+}
+
+.ops-user-row:first-child { border-top: none; }
+
+.ops-user-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ops-avatar-bg, #1059E9);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 40px;
+  text-align: center;
+}
+
+.ops-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ops-user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1D232D;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ops-user-email {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #7D8696;
+}
+
+.ops-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.ops-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ops-role--admin {
+  color: #1059E9;
+  background: #F0F6FF;
+  border-color: #D6E4FF;
+}
+
+.ops-role--user {
+  color: #545D6D;
+  background: #F7F9FC;
+  border-color: #E8ECF0;
+}
+
+.ops-user-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border: none;
+  border-radius: 12px;
+  background: #D0D5DD;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ops-user-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(16, 28, 40, 0.15);
+  transition: transform 0.15s;
+}
+
+.ops-user-toggle.is-on {
+  background: #12B76A;
+}
+
+.ops-user-toggle.is-on::after {
+  transform: translateX(20px);
+}
+
+.ops-user-quota {
+  border: none;
+  background: transparent;
+  color: #1059E9;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.ops-user-quota:hover { text-decoration: underline; }
+
+.ops-panel__placeholder {
+  padding: 64px 32px;
+  text-align: center;
+  color: #7D8696;
+  font-size: 14px;
+}

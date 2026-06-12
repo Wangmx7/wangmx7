@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI治理 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="governance.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="gov.pageTitle">
+  <div class="xs-app gov-app">
+    <aside id="sidebar"></aside>
+
+    <div class="xs-main gov-main">
+      <header class="gov-page-head">
+        <div class="gov-page-title">
+          <h1 data-i18n="gov.page.title">AI治理</h1>
+          <p data-i18n="gov.page.subtitle">审计用户操作与 Agent/Skill/MCP 工具执行记录，识别高风险行为并获取 AI 治理建议与周报</p>
+        </div>
+      </header>
+
+      <nav class="gov-tabs" data-i18n-aria="gov.tabsAria" aria-label="治理模块">
+        <button class="gov-tab active" data-tab="overview" data-i18n="gov.tabs.overview">概览</button>
+        <button class="gov-tab" data-tab="audit" data-i18n="gov.tabs.audit">用户操作</button>
+        <button class="gov-tab" data-tab="tools" data-i18n="gov.tabs.tools">工具执行</button>
+      </nav>
+
+      <div class="gov-content" id="govContent"></div>
+    </div>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="governance-filters.js"></script>
+  <script src="ai-governance-insight.js"></script>
+  <script src="governance.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: 'ai-governance',
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+    Governance.init();
+  </script>
+</body>
+</html>

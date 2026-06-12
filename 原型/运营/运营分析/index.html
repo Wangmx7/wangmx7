@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>运营分析 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="ops-analysis.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="ops.pageTitle">
+  <div class="xs-app ops-app">
+    <aside id="sidebar"></aside>
+
+    <div class="xs-main ops-main">
+      <header class="ops-page-head">
+        <div class="ops-page-title">
+          <h1 data-i18n="ops.page.title">运营分析</h1>
+          <p data-i18n="ops.page.subtitle">汇总各 Workspace 的使用、资产、成本、审批、集市与质量指标，用数据驱动运营决策，并获取 AI 运营建议</p>
+        </div>
+      </header>
+
+      <nav class="ops-tabs" data-i18n-aria="ops.tabsAria" aria-label="运营分析看板">
+        <button class="ops-tab active" data-tab="overview" data-i18n="ops.tabs.overview">平台总览</button>
+        <button class="ops-tab" data-tab="usage" data-i18n="ops.tabs.usage">使用分析</button>
+        <button class="ops-tab" data-tab="assets" data-i18n="ops.tabs.assets">资产效能</button>
+        <button class="ops-tab" data-tab="cost" data-i18n="ops.tabs.cost">成本效率</button>
+        <button class="ops-tab" data-tab="approval" data-i18n="ops.tabs.approval">审批发布</button>
+        <button class="ops-tab" data-tab="hub" data-i18n="ops.tabs.hub">集市运营</button>
+        <button class="ops-tab" data-tab="quality" data-i18n="ops.tabs.quality">质量反馈</button>
+      </nav>
+
+      <div class="ops-content" id="opsContent"></div>
+    </div>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="ops-analysis-ai.js"></script>
+  <script src="ops-analysis.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: 'ops-analysis',
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+    OpsAnalysis.init();
+  </script>
+</body>
+</html>
