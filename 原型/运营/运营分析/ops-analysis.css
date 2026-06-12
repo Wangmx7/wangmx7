@@ -16,8 +16,8 @@
   --ops-tabs-h: 44px;
 }
 
-.ops-app { background: var(--ops-bg); font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif; font-size: 14px; color: var(--ops-text); }
-.ops-main { overflow: hidden; }
+.ops-analysis-app { background: var(--ops-bg); font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif; font-size: 14px; color: var(--ops-text); }
+.ops-analysis-app .ops-main { overflow: hidden; }
 
 .ops-page-head {
   height: var(--ops-head-h); background: var(--ops-card); border-bottom: 1px solid var(--ops-border);
@@ -93,6 +93,17 @@
 .ops-dist-bar-cost { background: #7C3AED; }
 .ops-dist-bar-health { background: #12B76A; }
 .ops-dist-val { width: 100px; flex-shrink: 0; text-align: right; color: var(--ops-text-2); font-size: 11px; }
+
+.ops-radar-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.ops-radar-chart { flex-shrink: 0; }
+.ops-radar-svg { display: block; }
+.ops-radar-grid { stroke: var(--ops-border); fill: none; }
+.ops-radar-area { fill: rgba(16, 89, 233, 0.18); stroke: var(--ops-primary); stroke-width: 2; }
+.ops-radar-axis { stroke: var(--ops-border); stroke-width: 1; }
+.ops-radar-label { font-size: 11px; fill: var(--ops-text-2); }
+.ops-radar-legend { flex: 1; min-width: 160px; }
+.ops-radar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 12px; }
+.ops-radar-label-text { width: 72px; flex-shrink: 0; color: var(--ops-text-2); }
 
 .ops-table-wrap { overflow-x: auto; }
 .ops-table { width: 100%; border-collapse: collapse; font-size: 13px; }

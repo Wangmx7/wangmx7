@@ -192,7 +192,8 @@ const Approval = {
           </select>
           ${this.renderToolbarSelect('apvResourceType', apvT('filter.resourceType'), this.filters.resourceType, [
             { v: 'Agent', l: 'Agent' },
-            { v: 'Skill', l: 'Skill' }
+            { v: 'Skill', l: 'Skill' },
+            { v: 'KnowledgeBase', l: 'KnowledgeBase' }
           ])}
           ${showHistoryStatus ? this.renderToolbarSelect('apvHistoryStatus', apvT('filter.status'), this.filters.historyStatus, [
             { v: 'approved', l: XSparkI18n ? XSparkI18n.approvalStatus('approved') : '已通过' },
@@ -246,15 +247,16 @@ const Approval = {
 
   renderAiSummaryBlock(item, role) {
     const result = ApprovalAiSummaryEngine.summarize(item, role);
+    const summaryKey = ApprovalAiSummaryEngine.getSummaryKey(item);
     const levelCls = ApprovalAiSummaryEngine.riskLevelClass(result.riskLevel);
     const levelLabel = ApprovalAiSummaryEngine.riskLevelLabel(result.riskLevel);
     return `
-      <div class="apv-ai-summary">
+      <div class="apv-ai-summary apv-ai-summary--${summaryKey}">
         <div class="apv-ai-summary-head">
           ${this.aiSparkleSvg()}
           <div class="apv-ai-summary-head-text">
-            <div class="apv-ai-summary-title">${apvT('ai.summary')}</div>
-            <div class="apv-ai-summary-hint">${ApprovalAiSummaryEngine.roleHint(role)}</div>
+            <div class="apv-ai-summary-title">${ApprovalAiSummaryEngine.summaryTitle(item)}</div>
+            <div class="apv-ai-summary-hint">${ApprovalAiSummaryEngine.roleHint(item, role)}</div>
           </div>
           <span class="apv-ai-risk-badge ${levelCls}">${levelLabel}</span>
         </div>
@@ -326,6 +328,9 @@ const Approval = {
       const agentLink = item.resourceType === 'Agent'
         ? `<div class="apv-drawer-section"><a href="../../资产/智能体/index.html" target="_blank" rel="noopener" style="color:var(--apv-primary);font-size:13px">${apvT('drawer.viewAgent')}</a></div>`
         : '';
+      const knowledgeLink = item.resourceType === 'KnowledgeBase'
+        ? `<div class="apv-drawer-section"><a href="../../资产/知识/index.html" target="_blank" rel="noopener" style="color:var(--apv-primary);font-size:13px">${apvT('drawer.viewKnowledge')}</a></div>`
+        : '';
       body = `
         ${d.configSummary ? `<div class="apv-drawer-section"><div class="apv-drawer-section-title">${apvT('drawer.configSummary')}</div><p>${d.configSummary}</p></div>` : ''}
         <div class="apv-drawer-section"><div class="apv-drawer-section-title">${apvT('drawer.publishScope')}</div><p>${d.publishScope || item.workspace}</p></div>
@@ -333,7 +338,7 @@ const Approval = {
         <div class="apv-drawer-section apv-ai-review"><div class="apv-drawer-section-title">${apvT('drawer.aiReview')}</div><p>${d.aiReview || '—'}</p></div>
         <div class="apv-drawer-section"><div class="apv-drawer-section-title">${apvT('drawer.purpose')}</div><p>${d.purpose || '—'}</p></div>
         <div class="apv-drawer-section"><div class="apv-drawer-section-title">${apvT('drawer.riskBoundary')}</div><p>${d.riskBoundary || '—'}</p></div>
-        ${agentLink}`;
+        ${agentLink}${knowledgeLink}`;
     } else {
       body = `
         <div class="apv-drawer-section"><div class="apv-drawer-section-title">${apvT('drawer.categoryTags')}</div><p>${d.category || '—'} · ${(d.tags || []).join(', ')}</p></div>

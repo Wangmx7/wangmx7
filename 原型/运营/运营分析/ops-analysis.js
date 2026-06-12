@@ -174,6 +174,47 @@ const OpsAnalysis = {
       </div>`).join('')}</div>`;
   },
 
+  renderHealthRadar(items) {
+    const n = items.length;
+    const cx = 100;
+    const cy = 100;
+    const maxR = 72;
+    const angles = items.map((_, i) => (Math.PI * 2 * i / n) - Math.PI / 2);
+    const areaPts = angles.map((a, i) => {
+      const r = maxR * (items[i].score / 100);
+      return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+    }).join(' ');
+    const rings = [0.25, 0.5, 0.75, 1].map(s => {
+      const pts = angles.map(a => `${cx + maxR * s * Math.cos(a)},${cy + maxR * s * Math.sin(a)}`).join(' ');
+      return `<polygon class="ops-radar-grid" points="${pts}"/>`;
+    }).join('');
+    const axes = angles.map(a => `<line class="ops-radar-axis" x1="${cx}" y1="${cy}" x2="${cx + maxR * Math.cos(a)}" y2="${cy + maxR * Math.sin(a)}"/>`).join('');
+    const labels = items.map((h, i) => {
+      const lx = cx + (maxR + 16) * Math.cos(angles[i]);
+      const ly = cy + (maxR + 16) * Math.sin(angles[i]);
+      const anchor = Math.abs(Math.cos(angles[i])) < 0.2 ? 'middle' : Math.cos(angles[i]) > 0 ? 'start' : 'end';
+      return `<text class="ops-radar-label" x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${h.dim}</text>`;
+    }).join('');
+    return `
+      <div class="ops-radar-wrap">
+        <div class="ops-radar-chart">
+          <svg class="ops-radar-svg" viewBox="0 0 200 200" width="200" height="200" aria-label="健康度雷达">
+            ${rings}${axes}
+            <polygon class="ops-radar-area" points="${areaPts}"/>
+            ${labels}
+          </svg>
+        </div>
+        <div class="ops-radar-legend">
+          ${items.map(h => `
+            <div class="ops-radar-row">
+              <span class="ops-radar-label-text">${h.dim}</span>
+              <div class="ops-dist-bar-wrap" style="flex:1"><div class="ops-dist-bar ops-dist-bar-health" style="width:${h.score}%"></div></div>
+              <span class="ops-dist-val">${h.score}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  },
+
   distRows(items, labelKey, countKey, pctKey) {
     return items.map(r => `
       <div class="ops-dist-row">
@@ -287,13 +328,7 @@ const OpsAnalysis = {
       <div class="ops-charts-row">
         <div class="ops-card">
           <div class="ops-card-head">${opsT('card.healthRadar')}</div>
-          <div class="ops-card-body ops-radar-wrap">${snap.healthRadar.map(h => `
-            <div class="ops-radar-row">
-              <span class="ops-radar-label">${h.dim}</span>
-              <div class="ops-dist-bar-wrap"><div class="ops-dist-bar ops-dist-bar-health" style="width:${h.score}%"></div></div>
-              <span class="ops-dist-val">${h.score}</span>
-            </div>`).join('')}
-          </div>
+          <div class="ops-card-body">${this.renderHealthRadar(snap.healthRadar)}</div>
         </div>
         <div class="ops-card">
           <div class="ops-card-head">${opsT('card.alerts')} <span class="ops-card-sub">${opsT('card.clickAlertAi')}</span></div>
@@ -310,11 +345,6 @@ const OpsAnalysis = {
             </table>
           </div>
         </div>
-      </div>
-      <div class="ops-links-row">
-        <a class="ops-link" href="../ai观测/index.html">${opsT('link.observability')}</a>
-        <a class="ops-link" href="../../治理/ai治理/index.html">${opsT('link.governance')}</a>
-        <a class="ops-link" href="../审批中心/index.html">${opsT('link.approval')}</a>
       </div>`;
   },
 
@@ -376,6 +406,18 @@ const OpsAnalysis = {
         <div class="ops-card"><div class="ops-card-head">${opsT('card.costTopWs')}</div><div class="ops-card-body">${c.byWorkspace.map(w => `
           <div class="ops-dist-row"><span class="ops-dist-label">${this.wsLabel(w.name)}</span><div class="ops-dist-bar-wrap"><div class="ops-dist-bar ops-dist-bar-cost" style="width:${(w.cost / maxWs) * 100}%"></div></div><span class="ops-dist-val">$${w.cost} (${w.pct}%)</span></div>`).join('')}</div></div>
       </div>
+      <div class="ops-card">
+        <div class="ops-card-head">${opsT('card.costTopAgent')}</div>
+        <div class="ops-card-body">${(() => {
+          const maxAgent = Math.max(...c.byAgent.map(a => a.cost), 1);
+          return c.byAgent.map(a => `
+            <div class="ops-dist-row">
+              <span class="ops-dist-label mono">${a.name}</span>
+              <div class="ops-dist-bar-wrap"><div class="ops-dist-bar ops-dist-bar-cost" style="width:${(a.cost / maxAgent) * 100}%"></div></div>
+              <span class="ops-dist-val">$${a.cost} · ${a.calls.toLocaleString()} ${opsT('legend.calls')}</span>
+            </div>`).join('');
+        })()}</div>
+      </div>
       <div class="ops-card"><div class="ops-card-head">${opsT('card.modelUsage')} <a class="ops-link inline" href="../ai观测/index.html">${opsT('link.traceDetail')}</a></div><div class="ops-card-body ops-table-wrap"><table class="ops-table"><thead><tr><th>Model</th><th>Traces</th><th>Tokens</th><th>Cost ($)</th><th>Share</th><th>Trend</th></tr></thead><tbody>${c.models.map(m => `<tr><td class="mono">${m.model}</td><td>${m.traces.toLocaleString()}</td><td>${m.tokens}</td><td>${m.cost}</td><td>${m.share}</td><td>${m.trend}</td></tr>`).join('')}</tbody></table></div></div>`;
   },
 
@@ -434,6 +476,7 @@ const OpsAnalysis = {
     });
     document.getElementById('opsCompare')?.addEventListener('change', e => {
       this.compareMode = e.target.value;
+      this.render();
     });
     document.getElementById('opsExportReport')?.addEventListener('click', () => alert(opsT('ai.exportAlert')));
     document.getElementById('opsWeeklyReport')?.addEventListener('click', () => {

@@ -183,6 +183,7 @@ const XSPARK_LOCALES = {
         assetDetail: '资产明细',
         costTrend7d: '成本趋势（7 天）',
         costTopWs: '成本 Top Workspace',
+        costTopAgent: '成本 Top Agent',
         modelUsage: 'Model 用量',
         approvalByType: '三类审批量',
         approvalSla: '审批时效分布',
@@ -218,7 +219,7 @@ const XSPARK_LOCALES = {
         governanceLink: '→ AI治理',
         errorTrace: '查看 AI观测 错误 Trace →'
       },
-      legend: { sessions: '会话', costX10: '成本×10', skill: 'Skill', agent: 'Agent' }
+      legend: { sessions: '会话', costX10: '成本×10', skill: 'Skill', agent: 'Agent', calls: '次调用' }
     },
     approval: {
       pageTitle: '审批中心 — xSparkOps',
@@ -253,6 +254,41 @@ const XSPARK_LOCALES = {
       },
       ai: {
         summary: 'AI 总结',
+        riskLevels: { high: '高风险', medium: '中风险', low: '低风险' },
+        titles: {
+          l3_exec: 'L3 执行风险分析',
+          platform_publish_agent: 'Agent 平台发布分析',
+          platform_publish_skill: 'Skill 平台发布分析',
+          platform_publish_knowledge: '知识库发布分析',
+          skillhub_publish: 'Skillhub 上架分析'
+        },
+        hints: {
+          l3_exec: {
+            approver: '聚焦 Run 输入范围、Tool 写权限与执行可逆性',
+            submitter: '自查是否涉及自动修复/写操作，授权是否最小化',
+            viewer: '回顾 L3 敏感执行类审批的风险点'
+          },
+          platform_publish_agent: {
+            approver: '关注 Tool/MCP 权限扩张、模型与 RAG 变更影响',
+            submitter: '逐条说明 Agent 配置变更与风险边界',
+            viewer: '回顾 Agent 平台发布审批的风险评估'
+          },
+          platform_publish_skill: {
+            approver: '重点核对数据导出范围、依赖 Tool 与调用配额',
+            submitter: '说明 Skill 导出上限与禁止场景',
+            viewer: '回顾 Skill 平台发布审批的风险评估'
+          },
+          platform_publish_knowledge: {
+            approver: '抽检文档敏感级、可见范围与 Agent 检索授权',
+            submitter: '完成文档分级并明确知识库可见范围',
+            viewer: '回顾知识库发布审批的风险评估'
+          },
+          skillhub_publish: {
+            approver: '核对安全扫描、集市曝光面与发布说明完整性',
+            submitter: '补齐安全材料与 Skillhub 展示说明',
+            viewer: '回顾 Skillhub 上架审批的风险评估'
+          }
+        },
         riskScore: '综合风险分',
         viewFull: '查看完整分析',
         submitPreview: '提交前 AI 预审',
@@ -289,7 +325,8 @@ const XSPARK_LOCALES = {
         approve: '通过',
         reject: '拒绝',
         submitter: '提交人',
-        viewAgent: '查看智能体配置 →'
+        viewAgent: '查看智能体配置 →',
+        viewKnowledge: '查看知识库 →'
       },
       fields: { type: '类型', resource: '资源', version: '版本' }
     },
@@ -321,13 +358,55 @@ const XSPARK_LOCALES = {
         title: '知识',
         subtitle: '上传与组织知识库文档，配置检索策略并评测问答效果'
       },
+      tabsAria: '知识库范围',
+      tabs: {
+        all: '全部知识库',
+        mine: '我的知识库'
+      },
+      filterStatus: '知识状态',
+      filterScope: '公开范围',
+      allStatus: '全部',
+      allScope: '全部',
+      legendTitle: '公开范围与状态说明',
+      scopeSearchPlaceholder: '搜索公开范围',
+      scopeSearchEmpty: '无匹配的公开范围',
       searchPlaceholder: '搜索知识库名称 / Workspace',
       allWorkspaces: '全部 Workspace',
       allVisibility: '全部可见范围',
       visibility: '可见范围',
+      emptyMine: '您还没有创建知识库，点击右上角创建',
+      rejectHint: '驳回原因：{reason}',
+      pendingHint: '发布审批进行中',
       sortUpdated: '最近更新',
       create: '创建知识库',
       createAlert: '原型演示：打开创建知识库向导',
+      createWizard: {
+        title: '创建知识库',
+        subtitle: '填写基本信息并设定公开范围，创建后为草稿',
+        name: '知识库名称',
+        namePlaceholder: '例如：产品 FAQ 知识库',
+        description: '描述',
+        descPlaceholder: '简要说明用途与文档类型（可选）',
+        publishScope: '公开范围',
+        scopeLabels: {
+          workspace: '不公开',
+          public: '公开'
+        },
+        scopeDesc: {
+          workspace: '当前 Workspace 可见，即当前团队成员可检索引用',
+          public: '全部 Workspace 可见，即平台级公开'
+        },
+        slugPreview: '标识：{slug}',
+        publicNote: '选择「公开」后，发布时需走审批流程',
+        scopeSearchPlaceholder: '搜索公开范围',
+        cancel: '取消',
+        submit: '创建',
+        success: '知识库「{name}」已创建为草稿',
+        validationName: '请输入知识库名称',
+        validationNameMin: '名称至少 2 个字符',
+        validationWorkspace: '请选择 Workspace',
+        validationDuplicate: '已存在同名知识库，请更换名称'
+      },
       sortAlert: '原型演示：按最近更新排序',
       moreAlert: '原型演示：更多操作菜单',
       docCount: '文档数',
@@ -336,15 +415,43 @@ const XSPARK_LOCALES = {
       updated: '更新',
       more: '更多',
       empty: '暂无匹配的知识库',
+      editAlert: '原型演示：编辑知识库「{name}」',
+      deleteConfirm: '确定删除知识库「{name}」？此操作不可撤销。',
+      publishAlert: '原型演示：提交知识库发布审批',
+      publishedApproval: '已提交知识库发布审批：{id}',
+      viewApprovalPrompt: '是否前往审批中心查看？',
+      actions: {
+        edit: '编辑',
+        publish: '发布',
+        republish: '重新发布',
+        delete: '删除',
+        viewApproval: '查看审批',
+        publishedEditAlert: '已发布知识库需先下架或创建新版本后再编辑（原型演示）'
+      },
+      status: {
+        draft: '草稿',
+        pending_approval: '待审批',
+        published: '已发布',
+        rejected: '已驳回'
+      },
+      statusDesc: {
+        draft: '编辑中，未提交发布；仅创建者可见，可自由修改文档与配置',
+        pending_approval: '已提交发布审批，等待管理员审核；审批期间不可修改或删除',
+        published: '审批已通过，按可见范围对外提供 Agent 检索；变更需重新走发布审批',
+        rejected: '发布审批被驳回，需根据意见修改后重新提交'
+      },
+      scopeDesc: {
+        workspace: '当前 Workspace 可见，即当前团队成员可检索引用',
+        public: '全部 Workspace 可见，即平台级公开；发布需审批'
+      },
       total: '共 {count} 个知识库',
       pageOf: '第 {page} / {total} 页',
       pageSize: '每页条数',
       prev: '上一页',
       next: '下一页',
       tags: {
-        private: '私有',
-        public: '公开',
-        team: '团队'
+        workspace: '不公开',
+        public: '公开'
       }
     },
     agent: {
@@ -764,6 +871,7 @@ const XSPARK_LOCALES = {
         assetDetail: 'Asset details',
         costTrend7d: 'Cost trend (7d)',
         costTopWs: 'Top workspaces by cost',
+        costTopAgent: 'Top agents by cost',
         modelUsage: 'Model usage',
         approvalByType: 'Approvals by type',
         approvalSla: 'Approval SLA distribution',
@@ -799,7 +907,7 @@ const XSPARK_LOCALES = {
         governanceLink: '→ AI Governance',
         errorTrace: 'View error traces in AI Observability →'
       },
-      legend: { sessions: 'Sessions', costX10: 'Cost ×10', skill: 'Skill', agent: 'Agent' }
+      legend: { sessions: 'Sessions', costX10: 'Cost ×10', skill: 'Skill', agent: 'Agent', calls: 'calls' }
     },
     approval: {
       pageTitle: 'Approval Center — xSparkOps',
@@ -834,6 +942,41 @@ const XSPARK_LOCALES = {
       },
       ai: {
         summary: 'AI Summary',
+        riskLevels: { high: 'High risk', medium: 'Medium risk', low: 'Low risk' },
+        titles: {
+          l3_exec: 'L3 execution risk analysis',
+          platform_publish_agent: 'Agent platform publish analysis',
+          platform_publish_skill: 'Skill platform publish analysis',
+          platform_publish_knowledge: 'Knowledge base publish analysis',
+          skillhub_publish: 'Skillhub listing analysis'
+        },
+        hints: {
+          l3_exec: {
+            approver: 'Focus on run input scope, tool write permissions, and reversibility',
+            submitter: 'Self-check for auto-fix/write ops and minimize authorization',
+            viewer: 'Review risk points for L3 execution approvals'
+          },
+          platform_publish_agent: {
+            approver: 'Watch for tool/MCP expansion and model or RAG changes',
+            submitter: 'Document agent config changes and risk boundaries',
+            viewer: 'Review agent platform publish risk assessment'
+          },
+          platform_publish_skill: {
+            approver: 'Verify export scope, dependent tools, and quotas',
+            submitter: 'State export limits and prohibited scenarios',
+            viewer: 'Review skill platform publish risk assessment'
+          },
+          platform_publish_knowledge: {
+            approver: 'Check document sensitivity, visibility, and retrieval ACLs',
+            submitter: 'Complete doc classification and visibility settings',
+            viewer: 'Review knowledge base publish risk assessment'
+          },
+          skillhub_publish: {
+            approver: 'Verify security scan, marketplace exposure, and listing notes',
+            submitter: 'Complete security materials and Skillhub listing copy',
+            viewer: 'Review Skillhub listing risk assessment'
+          }
+        },
         riskScore: 'Risk score',
         viewFull: 'View full analysis',
         submitPreview: 'Pre-submit AI review',
@@ -870,7 +1013,8 @@ const XSPARK_LOCALES = {
         approve: 'Approve',
         reject: 'Reject',
         submitter: 'Submitter',
-        viewAgent: 'View agent config →'
+        viewAgent: 'View agent config →',
+        viewKnowledge: 'View knowledge base →'
       },
       fields: { type: 'Type', resource: 'Resource', version: 'Version' }
     },
@@ -902,13 +1046,55 @@ const XSPARK_LOCALES = {
         title: 'Knowledge',
         subtitle: 'Upload and organize knowledge bases, tune retrieval, and evaluate Q&A quality'
       },
+      tabsAria: 'Knowledge base scope',
+      tabs: {
+        all: 'All knowledge bases',
+        mine: 'My knowledge bases'
+      },
+      filterStatus: 'Status',
+      filterScope: 'Publish scope',
+      allStatus: 'All',
+      allScope: 'All',
+      legendTitle: 'Publish scope & status guide',
+      scopeSearchPlaceholder: 'Search publish scope',
+      scopeSearchEmpty: 'No matching scope',
       searchPlaceholder: 'Search knowledge base / workspace',
       allWorkspaces: 'All workspaces',
       allVisibility: 'All visibility',
       visibility: 'Visibility',
+      emptyMine: 'You have not created any knowledge bases yet',
+      rejectHint: 'Rejected: {reason}',
+      pendingHint: 'Publish approval in progress',
       sortUpdated: 'Recently updated',
       create: 'Create knowledge base',
       createAlert: 'Prototype: Open create knowledge base wizard',
+      createWizard: {
+        title: 'Create knowledge base',
+        subtitle: 'Set basics and publish scope; new libraries start as drafts',
+        name: 'Name',
+        namePlaceholder: 'e.g. Product FAQ knowledge base',
+        description: 'Description',
+        descPlaceholder: 'Purpose and document types (optional)',
+        publishScope: 'Publish scope',
+        scopeLabels: {
+          workspace: 'Workspace only',
+          public: 'Public'
+        },
+        scopeDesc: {
+          workspace: 'Visible within the current workspace (current team)',
+          public: 'Visible across all workspaces (platform-wide)'
+        },
+        slugPreview: 'ID: {slug}',
+        publicNote: 'Choosing Public requires publish approval',
+        scopeSearchPlaceholder: 'Search publish scope',
+        cancel: 'Cancel',
+        submit: 'Create',
+        success: 'Knowledge base "{name}" created as draft',
+        validationName: 'Enter a knowledge base name',
+        validationNameMin: 'Name must be at least 2 characters',
+        validationWorkspace: 'Select a workspace',
+        validationDuplicate: 'A knowledge base with this name already exists'
+      },
       sortAlert: 'Prototype: Sort by last updated',
       moreAlert: 'Prototype: More actions menu',
       docCount: 'Documents',
@@ -917,15 +1103,43 @@ const XSPARK_LOCALES = {
       updated: 'updated',
       more: 'More',
       empty: 'No knowledge bases match your filters',
+      editAlert: 'Prototype: Edit knowledge base "{name}"',
+      deleteConfirm: 'Delete knowledge base "{name}"? This cannot be undone.',
+      publishAlert: 'Prototype: Submit knowledge base publish approval',
+      publishedApproval: 'Knowledge base publish approval submitted: {id}',
+      viewApprovalPrompt: 'Open Approval Center now?',
+      actions: {
+        edit: 'Edit',
+        publish: 'Publish',
+        republish: 'Resubmit',
+        delete: 'Delete',
+        viewApproval: 'View approval',
+        publishedEditAlert: 'Published knowledge bases must be unpublished or versioned before editing (prototype)'
+      },
+      status: {
+        draft: 'Draft',
+        pending_approval: 'Pending approval',
+        published: 'Published',
+        rejected: 'Rejected'
+      },
+      statusDesc: {
+        draft: 'In progress, not submitted; only the owner can see and edit',
+        pending_approval: 'Publish approval submitted; locked until review completes',
+        published: 'Approved and searchable per visibility scope; changes require re-approval',
+        rejected: 'Publish rejected; update per feedback and resubmit'
+      },
+      scopeDesc: {
+        workspace: 'Visible within the current workspace (current team)',
+        public: 'Visible across all workspaces; publish approval required'
+      },
       total: '{count} knowledge bases',
       pageOf: 'Page {page} of {total}',
       pageSize: 'Page size',
       prev: 'Previous',
       next: 'Next',
       tags: {
-        private: 'Private',
-        public: 'Public',
-        team: 'Team'
+        workspace: 'Workspace only',
+        public: 'Public'
       }
     },
     agent: {

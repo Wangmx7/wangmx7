@@ -82,6 +82,27 @@ const APPROVAL_MOCK = {
       }
     },
     {
+      id: 'apv_kb_01',
+      type: 'platform_publish',
+      resource: 'test-case-kb',
+      resourceType: 'KnowledgeBase',
+      version: '1.0.0',
+      submitter: '王小明',
+      workspace: '人工智能实验室',
+      submittedAt: '2026-06-11 10:05:00',
+      waitingDuration: '1h 22m',
+      status: 'pending',
+      assignedTo: '王小明',
+      detail: {
+        publishScope: '人工智能实验室',
+        changeLog: '发布知识库「测试用例知识库」v1.0.0',
+        configSummary: '可见范围 private · 文档 17 · 切片 9 · 引用 12',
+        aiReview: 'AI 预审：检查可见范围、文档敏感级与 Agent 检索权限配置',
+        purpose: '供 Agent / Skill 检索测试用例与验收文档',
+        riskBoundary: '仅限 Workspace 内授权调用，禁止全平台公开检索'
+      }
+    },
+    {
       id: 'apv_04',
       type: 'platform_publish',
       resource: 'data-export',

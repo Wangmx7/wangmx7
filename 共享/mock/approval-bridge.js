@@ -5,7 +5,8 @@ const ApprovalBridge = {
   KEYS: {
     agents: 'xs-agents-v1',
     approvals: 'xs-approvals-dynamic-v1',
-    runs: 'xs-agent-runs-v1'
+    runs: 'xs-agent-runs-v1',
+    knowledge: 'xs-knowledge-v1'
   },
 
   _read(key, fallback) {
@@ -149,6 +150,100 @@ const ApprovalBridge = {
     return parts.join('；') || '—';
   },
 
+  _seedKnowledge() {
+    return typeof KNOWLEDGE_MOCK !== 'undefined' ? (KNOWLEDGE_MOCK.items || []) : [];
+  },
+
+  loadKnowledge() {
+    const stored = this._read(this.KEYS.knowledge, {});
+    const seed = this._seedKnowledge();
+    const map = {};
+    seed.forEach(k => {
+      map[k.id] = { ...k, status: k.status || 'draft', slug: k.slug || k.id };
+    });
+    Object.keys(stored).forEach(id => {
+      if (stored[id]._deleted) {
+        delete map[id];
+        return;
+      }
+      map[id] = { ...map[id], ...stored[id] };
+    });
+    return Object.values(map).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  },
+
+  getKnowledge(id) {
+    return this.loadKnowledge().find(k => k.id === id) || null;
+  },
+
+  saveKnowledge(kb) {
+    const stored = this._read(this.KEYS.knowledge, {});
+    const now = this._nowStr();
+    const item = {
+      ...kb,
+      slug: kb.slug || kb.id,
+      updatedAt: now,
+      owner: kb.owner || this._currentUser()
+    };
+    if (!item.createdAt) item.createdAt = now;
+    stored[item.id] = item;
+    this._write(this.KEYS.knowledge, stored);
+    return item;
+  },
+
+  deleteKnowledge(id) {
+    const stored = this._read(this.KEYS.knowledge, {});
+    stored[id] = { ...(stored[id] || {}), _deleted: true };
+    this._write(this.KEYS.knowledge, stored);
+  },
+
+  submitKnowledgeForApproval(kb) {
+    const version = kb.pendingVersion || kb.version || '1.0.0';
+    const approvalId = 'apv_kb_' + Date.now();
+    const now = this._nowStr();
+    const submitter = this._currentUser();
+    const workspace = kb.workspace || (typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace?.label : '人工智能实验室');
+
+    const approval = {
+      id: approvalId,
+      type: 'platform_publish',
+      resource: kb.slug || kb.id,
+      resourceType: 'KnowledgeBase',
+      version,
+      submitter,
+      workspace,
+      submittedAt: now,
+      waitingDuration: '刚刚',
+      status: 'pending',
+      assignedTo: '王小明',
+      knowledgeId: kb.id,
+      detail: {
+        publishScope: kb.tag === 'public' ? '全部 Workspace 可见（平台公开）' : `${workspace}（当前团队）`,
+        changeLog: kb.changeLog || `发布知识库「${kb.name}」v${version}`,
+        aiReview: 'AI 预审：检查可见范围、文档敏感级与 Agent 检索权限配置',
+        purpose: `供 Agent / Skill 检索：${kb.name}（${kb.docCount} 篇文档，${kb.sliceCount} 切片）`,
+        riskBoundary: kb.tag === 'public'
+          ? '全部 Workspace 可见，需人工复核敏感文档'
+          : `仅限 ${workspace} 内成员与授权 Agent 检索`,
+        configSummary: `公开范围 ${kb.tag === 'public' ? '公开' : '不公开'} · 文档 ${kb.docCount} · 切片 ${kb.sliceCount} · 引用 ${kb.refCount ?? '—'}`
+      }
+    };
+
+    const dynamic = this._loadDynamicApprovals();
+    dynamic.push(approval);
+    this._saveDynamicApprovals(dynamic);
+
+    const updated = this.saveKnowledge({
+      ...kb,
+      status: 'pending_approval',
+      approvalId,
+      pendingVersion: version,
+      submittedAt: now,
+      rejectComment: null
+    });
+
+    return { approvalId, knowledge: updated };
+  },
+
   resolveApproval(id, { approved, comment }) {
     const dynamic = this._loadDynamicApprovals();
     const idx = dynamic.findIndex(a => a.id === id);
@@ -193,6 +288,26 @@ const ApprovalBridge = {
       }
       agents[targetKey] = next;
       this._write(this.KEYS.agents, agents);
+    }
+
+    const knowledgeId = approval?.knowledgeId;
+    if (knowledgeId) {
+      const stored = this._read(this.KEYS.knowledge, {});
+      const cur = stored[knowledgeId] || this.getKnowledge(knowledgeId) || {};
+      const next = { ...cur, id: knowledgeId };
+      if (approved) {
+        next.status = 'published';
+        next.publishedAt = now;
+        next.publishedVersion = approval?.version || next.pendingVersion || next.version || '1.0.0';
+        next.version = next.publishedVersion;
+        next.tag = next.tag === 'private' ? 'team' : next.tag;
+        next.rejectComment = null;
+      } else {
+        next.status = 'rejected';
+        next.rejectComment = comment || '审批驳回';
+      }
+      stored[knowledgeId] = next;
+      this._write(this.KEYS.knowledge, stored);
     }
 
     if (!approval && typeof APPROVAL_MOCK !== 'undefined') {

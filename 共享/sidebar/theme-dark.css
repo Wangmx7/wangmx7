@@ -515,6 +515,161 @@
   color: var(--xs-dark-text-2);
 }
 
+.xs-app[data-theme="dark"] .kb-tab.active {
+  color: var(--xs-dark-primary);
+  border-bottom-color: var(--xs-dark-primary);
+}
+
+.xs-app[data-theme="dark"] .kb-status-tab {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+  color: var(--xs-dark-text-2);
+}
+
+.xs-app[data-theme="dark"] .kb-status-tab.active {
+  background: rgba(16, 89, 233, 0.15);
+  border-color: var(--xs-dark-primary);
+  color: var(--xs-dark-primary);
+}
+
+.xs-app[data-theme="dark"] .kb-scope-tab {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+  color: var(--xs-dark-text-2);
+}
+
+.xs-app[data-theme="dark"] .kb-legend-block h4 {
+  color: var(--xs-dark-text);
+}
+
+.xs-app[data-theme="dark"] .kb-card-hint--reject {
+  background: rgba(180, 35, 24, 0.15);
+  border-color: rgba(180, 35, 24, 0.3);
+}
+
+.xs-app[data-theme="dark"] .kb-card-hint--pending {
+  background: rgba(180, 83, 9, 0.15);
+  border-color: rgba(180, 83, 9, 0.3);
+}
+
+.xs-app[data-theme="dark"] .kb-status--draft {
+  background: var(--xs-dark-hover);
+  color: var(--xs-dark-text-2);
+  border-color: var(--xs-dark-border);
+}
+
+.xs-app[data-theme="dark"] .kb-create-modal,
+.xs-app[data-theme="dark"] .kb-create-steps,
+.xs-app[data-theme="dark"] .kb-create-foot {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+}
+
+.xs-app[data-theme="dark"] .kb-create-step.active,
+.xs-app[data-theme="dark"] .kb-create-step.done {
+  background: var(--xs-dark-hover);
+}
+
+.xs-app[data-theme="dark"] .kb-create-input,
+.xs-app[data-theme="dark"] .kb-create-textarea,
+.xs-app[data-theme="dark"] .kb-create-select,
+.xs-app[data-theme="dark"] .kb-create-scope {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+  color: var(--xs-dark-text);
+}
+
+.xs-app[data-theme="dark"] .kb-create-preview {
+  background: var(--xs-dark-hover);
+}
+
+.xs-app[data-theme="dark"] .kb-search-select-trigger,
+.xs-app[data-theme="dark"] .kb-search-select-panel {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+  color: var(--xs-dark-text);
+}
+
+.xs-app[data-theme="dark"] .kb-search-select-option:hover,
+.xs-app[data-theme="dark"] .kb-search-select-option.selected {
+  background: var(--xs-dark-hover);
+}
+
+.xs-app[data-theme="dark"] .kb-card-menu {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.xs-app[data-theme="dark"] .kb-card-menu-item {
+  color: var(--xs-dark-text);
+}
+
+.xs-app[data-theme="dark"] .kb-card-menu-item:hover {
+  background: var(--xs-dark-hover);
+}
+
+.xs-app[data-theme="dark"] .kb-card-menu-item--danger:hover {
+  background: rgba(180, 35, 24, 0.15);
+}
+
+/* Ops analytics (运营分析) — page chrome */
+.xs-app[data-theme="dark"].ops-analysis-app {
+  background: var(--xs-dark-bg);
+}
+
+.xs-app[data-theme="dark"].ops-analysis-app .ops-page-head,
+.xs-app[data-theme="dark"].ops-analysis-app .ops-tabs {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+}
+
+.xs-app[data-theme="dark"].ops-analysis-app .ops-content {
+  background: var(--xs-dark-bg);
+}
+
+.xs-app[data-theme="dark"] .ops-kpi,
+.xs-app[data-theme="dark"] .ops-card,
+.xs-app[data-theme="dark"] .ops-toolbar {
+  background: var(--xs-dark-surface);
+  border-color: var(--xs-dark-border);
+}
+
+.xs-app[data-theme="dark"] .ops-card-head {
+  background: var(--xs-dark-surface-2);
+  border-color: var(--xs-dark-border);
+}
+
+.xs-app[data-theme="dark"] .ops-kpi-value,
+.xs-app[data-theme="dark"] .ops-page-title h1 {
+  color: var(--xs-dark-text);
+}
+
+.xs-app[data-theme="dark"] .ops-page-title p,
+.xs-app[data-theme="dark"] .ops-kpi-label,
+.xs-app[data-theme="dark"] .ops-card-sub {
+  color: var(--xs-dark-text-2);
+}
+
+.xs-app[data-theme="dark"] .ops-radar-area {
+  fill: rgba(16, 89, 233, 0.22);
+  stroke: #7EB3FF;
+}
+
+.xs-app[data-theme="dark"] .ops-radar-label {
+  fill: var(--xs-dark-text-2);
+}
+
+.xs-app[data-theme="dark"] .ops-asset-type-card,
+.xs-app[data-theme="dark"] .ops-type-trend-cell {
+  background: var(--xs-dark-surface-2);
+  border-color: var(--xs-dark-border);
+}
+
+.xs-app[data-theme="dark"] .ops-donut::after {
+  background: var(--xs-dark-surface);
+}
+
 /* Ops console (运维后台) */
 .xs-app[data-theme="dark"].ops-app .xs-main {
   background: var(--xs-dark-bg);

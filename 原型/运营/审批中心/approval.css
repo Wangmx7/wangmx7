@@ -576,8 +576,15 @@
   padding: 14px;
   background: linear-gradient(180deg, #F8FAFF 0%, #fff 100%);
   border: 1px solid #D6E4FF;
+  border-left: 3px solid var(--apv-primary);
   border-radius: 10px;
 }
+
+.apv-ai-summary--l3_exec { border-left-color: #F79009; background: linear-gradient(180deg, #FFFBEB 0%, #fff 100%); }
+.apv-ai-summary--platform_publish_agent { border-left-color: #1059E9; }
+.apv-ai-summary--platform_publish_skill { border-left-color: #7C3AED; background: linear-gradient(180deg, #F5F3FF 0%, #fff 100%); }
+.apv-ai-summary--platform_publish_knowledge { border-left-color: #12B76A; background: linear-gradient(180deg, #ECFDF3 0%, #fff 100%); }
+.apv-ai-summary--skillhub_publish { border-left-color: #EE46BC; background: linear-gradient(180deg, #FDF2FA 0%, #fff 100%); }
 
 .apv-ai-summary-head {
   display: flex;
