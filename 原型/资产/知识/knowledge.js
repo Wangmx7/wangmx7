@@ -1,5 +1,24 @@
 function kbT(k, p) {
-  return typeof XSparkI18n !== 'undefined' ? XSparkI18n.t('knowledge.' + k, p) : k;
+  const fullKey = 'knowledge.' + k;
+  if (typeof XSparkI18n !== 'undefined') {
+    const v = XSparkI18n.t(fullKey, p);
+    if (typeof v === 'string' && v !== fullKey) return v;
+  }
+  const locales = (typeof window !== 'undefined' && window.XSPARK_LOCALES)
+    || (typeof XSPARK_LOCALES !== 'undefined' ? XSPARK_LOCALES : null);
+  if (locales) {
+    const loc = (typeof XSparkI18n !== 'undefined' && XSparkI18n.locale) || 'zh';
+    let val = locales[loc] || locales.zh;
+    for (const part of fullKey.split('.')) {
+      val = val?.[part];
+      if (val === undefined) break;
+    }
+    if (typeof val === 'string') {
+      if (p) return val.replace(/\{(\w+)\}/g, (_, key) => (p[key] != null ? String(p[key]) : ''));
+      return val;
+    }
+  }
+  return k;
 }
 
 const Knowledge = {
@@ -215,7 +234,6 @@ const Knowledge = {
               ${this.getWorkspaceOptions().map(ws => `<option value="${ws}"${this.workspace === ws ? ' selected' : ''}>${this.wsLabel(ws)}</option>`).join('')}
             </select>
             ${KbSearchSelect.render('kbFilterScope', {
-              label: kbT('filterScope'),
               placeholder: kbT('scopeSearchPlaceholder'),
               value: this.visibility,
               options: scopeFilterOptions,

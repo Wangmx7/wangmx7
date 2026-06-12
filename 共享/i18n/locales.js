@@ -1,4 +1,4 @@
-const XSPARK_LOCALES = {
+var XSPARK_LOCALES = {
   zh: {
     common: {
       lang: { zh: '中文', en: 'English' },
@@ -1376,3 +1376,7 @@ const XSPARK_LOCALES = {
     }
   }
 };
+
+if (typeof window !== 'undefined') {
+  window.XSPARK_LOCALES = XSPARK_LOCALES;
+}

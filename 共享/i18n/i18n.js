@@ -7,6 +7,12 @@ const XSparkI18n = {
   locale: 'zh',
   _listeners: [],
 
+  _locales() {
+    if (typeof window !== 'undefined' && window.XSPARK_LOCALES) return window.XSPARK_LOCALES;
+    if (typeof XSPARK_LOCALES !== 'undefined') return XSPARK_LOCALES;
+    return null;
+  },
+
   init() {
     const saved = localStorage.getItem(this.STORAGE_KEY);
     this.locale = saved === 'en' ? 'en' : 'zh';
@@ -23,14 +29,16 @@ const XSparkI18n = {
 
   t(key, params) {
     if (!key) return '';
+    const locales = this._locales();
+    if (!locales) return key;
     const parts = String(key).split('.');
-    let val = XSPARK_LOCALES?.[this.locale];
+    let val = locales[this.locale];
     for (const p of parts) {
       val = val?.[p];
       if (val === undefined) break;
     }
     if (typeof val !== 'string') {
-      let fb = XSPARK_LOCALES?.zh;
+      let fb = locales.zh;
       for (const p of parts) {
         fb = fb?.[p];
         if (fb === undefined) break;
