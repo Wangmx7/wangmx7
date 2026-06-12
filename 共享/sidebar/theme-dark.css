@@ -262,6 +262,17 @@
 }
 
 .xs-app[data-theme="dark"] .apv-filter-text-inline,
+.xs-app[data-theme="dark"] .obs-filter-panel,
+.xs-app[data-theme="dark"] .obs-filter-panel-head,
+.xs-app[data-theme="dark"] .obs-filter-group {
+  border-color: var(--xs-dark-border);
+}
+
+.xs-app[data-theme="dark"] .obs-filter-group-head:hover {
+  background: var(--xs-dark-hover);
+}
+
+.xs-app[data-theme="dark"] .obs-filter-text,
 .xs-app[data-theme="dark"] .obs-filter-text-inline,
 .xs-app[data-theme="dark"] .gov-filter-text-inline,
 .xs-app[data-theme="dark"] .ops-ai-insight-input,

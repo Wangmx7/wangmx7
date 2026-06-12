@@ -8,11 +8,11 @@ window.XSPARK_SITE = {
   /** 登录态有效时长（小时） */
   sessionHours: 24,
   /**
-   * GitHub Pages 仓库名（URL 形如 https://user.github.io/仓库名/）
-   * 例：仓库名为 xsparkops → 填 'xsparkops'
-   * 用户/组织主页仓库（user.github.io）或独立域名 → 留空 ''
+   * 静态托管路径前缀
+   * - Vercel / 独立域名：留空 ''
+   * - GitHub Pages 子路径（user.github.io/仓库名/）：填仓库名
    */
-  repoSegment: 'wangmx7',
+  repoSegment: '',
   /** 是否启用密码门 */
   gateEnabled: true
 };

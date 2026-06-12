@@ -13,9 +13,10 @@ const Observability = {
   traceDrawerTab: 'preview',
   traceTreeSearch: '',
   traceFilters: TraceFilterEngine.emptyFilters(),
+  filtersOpen: true,
+  expandedSections: new Set(['type', 'name', 'tags']),
   aiFilterText: '',
   aiFilterNote: '',
-  aiFilterOpen: false,
   traceSearch: '',
   traceSearchMode: 'ids',
   dashboardAiQuery: '',
@@ -259,31 +260,67 @@ const Observability = {
     </tr>`;
   },
 
-  renderAiFilterToggle() {
-    const aiActive = !!(this.aiFilterNote || this.aiFilterText);
+  renderAiFilterPanel() {
     return `
-      <button type="button" class="obs-tb-btn obs-ai-filter-toggle${this.aiFilterOpen ? ' active' : ''}" id="obsAiFilterToggle" aria-expanded="${this.aiFilterOpen}">
-        <svg class="obs-ai-sparkle" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.2 4.2L15.5 7.5 11.2 8.7 10 13l-1.2-4.3L4.5 7.5l4.3-1.3L10 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M15 12l.6 2.1 2.1.6-2.1.6L15 17.4l-.6-2.1-2.1-.6 2.1-.6.6-2.1z" fill="currentColor" opacity=".6"/></svg>
-        AI 筛选
-        ${aiActive ? '<span class="obs-ai-filter-badge" aria-label="已应用"></span>' : ''}
-        <span class="obs-ai-filter-chevron">▼</span>
-      </button>`;
+      <div class="obs-ai-filter" id="obsAiFilter">
+        <div class="obs-ai-filter-label">
+          ${this.aiSparkleSvg()}
+          AI 筛选
+        </div>
+        <p class="obs-ai-hint">用自然语言描述筛选条件，系统会自动转换为可编辑的确定性筛选规则，您可在此基础上继续调整。</p>
+        <textarea class="obs-ai-input" id="obsAiFilterInput" placeholder="例如：显示错误的 trace，用户 2847 的对话">${this.aiFilterText}</textarea>
+        <div class="obs-ai-actions">
+          <button type="button" class="obs-ai-btn primary" id="obsAiApply">应用筛选</button>
+          <button type="button" class="obs-ai-btn" id="obsAiClear">清除</button>
+        </div>
+        ${this.aiFilterNote ? `<div class="obs-ai-result">${this.aiFilterNote}</div>` : ''}
+      </div>`;
   },
 
-  renderAiFilterBody() {
-    const aiCls = this.aiFilterOpen ? ' open' : ' collapsed';
-    return `
-      <div class="obs-ai-filter${aiCls}" id="obsAiFilter">
-        <div class="obs-ai-filter-body">
-          <p class="obs-ai-hint">用自然语言描述筛选条件，系统会自动转换为可编辑的确定性筛选规则，您可在此基础上继续调整。</p>
-          <textarea class="obs-ai-input" id="obsAiFilterInput" placeholder="例如：显示错误的 trace，用户 2847 的对话">${this.aiFilterText}</textarea>
-          <div class="obs-ai-actions">
-            <button type="button" class="obs-ai-btn primary" id="obsAiApply">应用筛选</button>
-            <button type="button" class="obs-ai-btn" id="obsAiClear">清除</button>
+  renderFilterGroups() {
+    return TRACE_FILTER_DEFS.map(def => {
+      const open = this.expandedSections.has(def.key);
+      const activeTags = this.renderActiveTagsForKey(def.key);
+      const body = def.type === 'checkbox'
+        ? def.options.map(opt => {
+            const checked = (this.traceFilters[def.key] || []).includes(opt);
+            const label = def.key === 'isRoot' ? (opt === 'true' ? 'True' : 'False') : opt;
+            return `<label class="obs-filter-check"><input type="checkbox" data-fkey="${def.key}" data-fval="${opt}" ${checked ? 'checked' : ''}>${label}</label>`;
+          }).join('')
+        : `<input type="text" class="obs-filter-text" data-fkey="${def.key}" placeholder="${def.placeholder || ''}" value="${this.traceFilters[def.key] || ''}">`;
+      return `
+        <div class="obs-filter-group${open ? ' open' : ''}" data-filter-key="${def.key}">
+          <button type="button" class="obs-filter-group-head">
+            <span>${def.label}${activeTags ? ` (${activeTags.count})` : ''}</span>
+            <span class="obs-filter-group-chevron">▼</span>
+          </button>
+          <div class="obs-filter-group-body">
+            ${activeTags ? `<div class="obs-filter-active-tags">${activeTags.html}</div>` : ''}
+            ${body}
           </div>
-          ${this.aiFilterNote ? `<div class="obs-ai-result">${this.aiFilterNote}</div>` : ''}
-        </div>
-      </div>`;
+        </div>`;
+    }).join('');
+  },
+
+  renderActiveTagsForKey(key) {
+    const def = TRACE_FILTER_DEFS.find(d => d.key === key);
+    if (!def) return null;
+    const v = this.traceFilters[key];
+    if (def.type === 'checkbox') {
+      const vals = v || [];
+      if (!vals.length) return null;
+      return {
+        count: vals.length,
+        html: vals.map(val => {
+          const label = key === 'isRoot' ? (val === 'true' ? 'True' : 'False') : val;
+          return `<span class="obs-filter-active-tag">${label}<button type="button" data-remove-fkey="${key}" data-remove-fval="${val}">×</button></span>`;
+        }).join('')
+      };
+    }
+    if (v?.trim()) {
+      return { count: 1, html: `<span class="obs-filter-active-tag">${v}<button type="button" data-remove-text="${key}">×</button></span>` };
+    }
+    return null;
   },
 
   renderWorkspaceSelect() {
@@ -296,33 +333,20 @@ const Observability = {
       </select>`;
   },
 
-  renderTraceFilterSelects() {
-    const labelMap = { isRoot: 'Is Root', userId: 'User' };
-    return TRACE_FILTER_DEFS.map(def => {
-      const current = this.traceFilters[def.key] || '';
-      const label = labelMap[def.key] || def.label;
-      const id = `obsFilter${def.key.charAt(0).toUpperCase()}${def.key.slice(1)}`;
-      const opts = def.options.map(opt => {
-        const text = def.key === 'isRoot' ? (opt === 'true' ? 'True' : 'False') : opt;
-        return `<option value="${opt}"${current === opt ? ' selected' : ''}>${text}</option>`;
-      }).join('');
-      return `
-        <select class="obs-tb-btn obs-tb-select" id="${id}" data-obs-filter="${def.key}" aria-label="${label}">
-          <option value=""${!current ? ' selected' : ''}>${label}</option>
-          ${opts}
-        </select>`;
-    }).join('');
-  },
-
   renderTraces() {
     const rows = this.getFilteredTracingRows();
+    const activeCount = TraceFilterEngine.activeCount(this.traceFilters);
+    const filterPanelCls = this.filtersOpen ? '' : ' collapsed';
 
     return `
       <div class="obs-tracing">
         <div class="obs-tracing-toolbar">
           <h2>Tracing</h2>
+          <button type="button" class="obs-tb-btn${this.filtersOpen ? ' active' : ''}" id="obsToggleFilters">
+            <span id="obsToggleFiltersLabel">${this.filtersOpen ? '☰ Hide filters' : '☰ Show filters'}</span>
+            <span class="obs-tb-badge" id="obsToggleFiltersBadge" ${activeCount ? '' : 'hidden'}>${activeCount || ''}</span>
+          </button>
           ${this.renderWorkspaceSelect()}
-          ${this.renderTraceFilterSelects()}
           <div class="obs-tb-search">
             <svg viewBox="0 0 16 16" width="13" height="13" style="color:var(--obs-text-3);flex-shrink:0"><circle cx="7" cy="7" r="4.5" stroke="currentColor" fill="none" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
             <input type="search" id="obsTraceSearch" placeholder="Search…" value="${this.traceSearch}">
@@ -333,7 +357,6 @@ const Observability = {
           </div>
           <select class="obs-tb-btn" style="cursor:pointer"><option>1d Past 1 day</option><option>7d Past 7 days</option></select>
           <button type="button" class="obs-tb-btn">↻ Off</button>
-          ${this.renderAiFilterToggle()}
           <button type="button" class="obs-tb-btn obs-tb-ai${this.tracingAiOpen ? ' active' : ''}" id="obsTracingAiToggle">
             ${this.aiSparkleSvg()} AI 观测
           </button>
@@ -342,22 +365,34 @@ const Observability = {
         </div>
 
         ${this.renderTracingAiPanel()}
-        ${this.renderAiFilterBody()}
 
-        <div class="obs-tracing-main">
-          <div class="obs-tracing-table-wrap">
-            <table class="obs-table" id="obsTraceTable">
-              <thead>${this.renderTracingTableHead()}</thead>
-              <tbody>${rows.length ? rows.map(r => this.renderTracingRow(r)).join('') : `<tr><td colspan="12"><div class="obs-empty">No results match current filters</div></td></tr>`}
-              </tbody>
-            </table>
-          </div>
-          <div class="obs-tracing-footer">
-            <span>Rows per page</span>
-            <select><option>50</option><option>100</option></select>
-            <span>Page 1 of 1 · ${rows.length} rows</span>
-            <div class="obs-page-btns">
-              <button disabled>«</button><button disabled>‹</button><button disabled>›</button><button disabled>»</button>
+        <div class="obs-tracing-body">
+          <aside class="obs-filter-panel${filterPanelCls}" id="obsFilterPanel">
+            <div class="obs-filter-panel-head">
+              <span>Filters</span>
+              <button type="button" class="obs-filter-clear" id="obsClearFilters">Clear all</button>
+            </div>
+            ${this.renderAiFilterPanel()}
+            <div class="obs-filter-scroll">
+              ${this.renderFilterGroups()}
+            </div>
+          </aside>
+
+          <div class="obs-tracing-main">
+            <div class="obs-tracing-table-wrap">
+              <table class="obs-table" id="obsTraceTable">
+                <thead>${this.renderTracingTableHead()}</thead>
+                <tbody>${rows.length ? rows.map(r => this.renderTracingRow(r)).join('') : `<tr><td colspan="12"><div class="obs-empty">No results match current filters</div></td></tr>`}
+                </tbody>
+              </table>
+            </div>
+            <div class="obs-tracing-footer">
+              <span>Rows per page</span>
+              <select><option>50</option><option>100</option></select>
+              <span>Page 1 of 1 · ${rows.length} rows</span>
+              <div class="obs-page-btns">
+                <button disabled>«</button><button disabled>‹</button><button disabled>›</button><button disabled>»</button>
+              </div>
             </div>
           </div>
         </div>
@@ -372,12 +407,31 @@ const Observability = {
     if (!tbody) return;
     tbody.innerHTML = rows.length ? rows.map(r => this.renderTracingRow(r)).join('') : `<tr><td colspan="12"><div class="obs-empty">No results match current filters</div></td></tr>`;
     if (footer) footer.textContent = `Page 1 of 1 · ${rows.length} rows`;
+    const count = TraceFilterEngine.activeCount(this.traceFilters);
+    const badge = document.getElementById('obsToggleFiltersBadge');
+    if (badge) {
+      badge.textContent = count || '';
+      badge.hidden = !count;
+    }
+    this.updateFilterGroupLabels();
     this.bindTraceRowClicks();
   },
 
   bindTraceFilterEvents() {
-    document.getElementById('obsAiFilterToggle')?.addEventListener('click', () => {
-      this.aiFilterOpen = !this.aiFilterOpen;
+    document.getElementById('obsToggleFilters')?.addEventListener('click', () => {
+      this.filtersOpen = !this.filtersOpen;
+      document.getElementById('obsFilterPanel')?.classList.toggle('collapsed', !this.filtersOpen);
+      document.getElementById('obsToggleFilters')?.classList.toggle('active', this.filtersOpen);
+      const label = document.getElementById('obsToggleFiltersLabel');
+      if (label) label.textContent = this.filtersOpen ? '☰ Hide filters' : '☰ Show filters';
+    });
+
+    document.getElementById('obsClearFilters')?.addEventListener('click', () => {
+      const workspace = this.traceFilters.workspace;
+      this.traceFilters = TraceFilterEngine.emptyFilters();
+      this.traceFilters.workspace = workspace;
+      this.aiFilterText = '';
+      this.aiFilterNote = '';
       this.render();
     });
 
@@ -388,9 +442,9 @@ const Observability = {
       const workspace = this.traceFilters.workspace;
       const { filters, summary } = TraceFilterEngine.parseNaturalLanguage(text);
       this.traceFilters = filters;
-      this.traceFilters.workspace = workspace;
+      this.traceFilters.workspace = workspace || filters.workspace;
+      if (filters.search) this.traceSearch = filters.search;
       this.aiFilterNote = `已应用：${summary}`;
-      this.aiFilterOpen = true;
       this.render();
     });
 
@@ -401,8 +455,6 @@ const Observability = {
       if (input) input.value = '';
       const note = document.querySelector('.obs-ai-result');
       if (note) note.remove();
-      const badge = document.querySelector('.obs-ai-filter-badge');
-      if (badge) badge.remove();
     });
 
     document.getElementById('obsTraceSearch')?.addEventListener('input', e => {
@@ -415,10 +467,52 @@ const Observability = {
       this.refreshTracesTable();
     });
 
-    document.querySelectorAll('[data-obs-filter]').forEach(sel => {
-      sel.addEventListener('change', () => {
-        this.traceFilters[sel.dataset.obsFilter] = sel.value;
+    document.querySelectorAll('.obs-filter-group-head').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.closest('.obs-filter-group')?.dataset.filterKey;
+        if (!key) return;
+        if (this.expandedSections.has(key)) this.expandedSections.delete(key);
+        else this.expandedSections.add(key);
+        btn.closest('.obs-filter-group')?.classList.toggle('open');
+      });
+    });
+
+    document.querySelectorAll('.obs-filter-check input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const key = inp.dataset.fkey;
+        const val = inp.dataset.fval;
+        const arr = [...(this.traceFilters[key] || [])];
+        if (inp.checked) {
+          if (!arr.includes(val)) arr.push(val);
+        } else {
+          const idx = arr.indexOf(val);
+          if (idx >= 0) arr.splice(idx, 1);
+        }
+        this.traceFilters[key] = arr;
         this.refreshTracesTable();
+      });
+    });
+
+    document.querySelectorAll('.obs-filter-text').forEach(inp => {
+      inp.addEventListener('input', () => {
+        this.traceFilters[inp.dataset.fkey] = inp.value;
+        this.refreshTracesTable();
+      });
+    });
+
+    document.querySelectorAll('[data-remove-fkey]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.removeFkey;
+        const val = btn.dataset.removeFval;
+        this.traceFilters[key] = (this.traceFilters[key] || []).filter(v => v !== val);
+        this.render();
+      });
+    });
+
+    document.querySelectorAll('[data-remove-text]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.traceFilters[btn.dataset.removeText] = '';
+        this.render();
       });
     });
 
@@ -488,7 +582,32 @@ const Observability = {
     });
   },
 
-  updateFilterGroupLabels() { /* horizontal filters — no accordion labels */ },
+  updateFilterGroupLabels() {
+    document.querySelectorAll('.obs-filter-group').forEach(group => {
+      const key = group.dataset.filterKey;
+      const active = this.renderActiveTagsForKey(key);
+      const label = group.querySelector('.obs-filter-group-head span');
+      const def = TRACE_FILTER_DEFS.find(d => d.key === key);
+      if (label && def) label.textContent = `${def.label}${active ? ` (${active.count})` : ''}`;
+      const tagsWrap = group.querySelector('.obs-filter-active-tags');
+      if (tagsWrap) {
+        tagsWrap.innerHTML = active ? active.html : '';
+        tagsWrap.style.display = active ? '' : 'none';
+      }
+    });
+    document.querySelectorAll('[data-remove-fkey], [data-remove-text]').forEach(btn => {
+      btn.onclick = () => {
+        if (btn.dataset.removeFkey) {
+          const key = btn.dataset.removeFkey;
+          const val = btn.dataset.removeFval;
+          this.traceFilters[key] = (this.traceFilters[key] || []).filter(v => v !== val);
+        } else {
+          this.traceFilters[btn.dataset.removeText] = '';
+        }
+        this.render();
+      };
+    });
+  },
 
   getTraceDetail(traceId) {
     if (traceId === OBS_MOCK.traceDetail.id) return OBS_MOCK.traceDetail;
