@@ -7,7 +7,7 @@ const AiObservabilityEngine = {
     return {
       user: cfg.user?.name || '当前用户',
       workspace: cfg.workspace?.label || '人工智能实验室',
-      workspaces: cfg.workspace?.options || ['人工智能实验室', 'IT 运维 Workspace', 'Default Workspace']
+      workspaces: cfg.workspace?.options || ['人工智能实验室', 'IT 运维 Workspace', 'Global WorkSpace']
     };
   },
 

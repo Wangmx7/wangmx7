@@ -101,7 +101,7 @@ const XSparkI18n = {
     const map = {
       '人工智能实验室': 'workspace.aiLab',
       'IT 运维 Workspace': 'workspace.itOps',
-      'Default Workspace': 'workspace.default',
+      'Global WorkSpace': 'workspace.default',
       '全平台': 'workspace.global',
       '全部可见 Workspace': 'workspace.allVisible'
     };

@@ -5,7 +5,7 @@ function kbCreateT(k, p) {
 const KnowledgeCreate = {
   open: false,
   form: null,
-  scopeSelectId: 'kbCreateScope',
+  publicTargetsOpen: false,
   SCOPES: ['workspace', 'public'],
 
   defaultForm() {
@@ -16,12 +16,13 @@ const KnowledgeCreate = {
       name: '',
       description: '',
       workspace: ws,
-      tag: 'workspace'
+      tag: 'workspace',
+      publicTargets: ['all']
     };
   },
 
   getWorkspaceOptions() {
-    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Default Workspace'];
+    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Global WorkSpace'];
   },
 
   wsLabel(name) {
@@ -36,19 +37,77 @@ const KnowledgeCreate = {
     return kbCreateT('scopeDesc.' + tag) || '';
   },
 
-  scopeOptions() {
-    return this.SCOPES.map(tag => ({
-      value: tag,
-      label: this.scopeLabel(tag),
-      desc: this.scopeDesc(tag),
-      badge: tag
-    }));
+  getPublicTargetOptions() {
+    return [
+      { value: 'all', label: kbCreateT('publicTargetsAll') },
+      ...this.getWorkspaceOptions().map(ws => ({ value: ws, label: this.wsLabel(ws) }))
+    ];
   },
 
-  selectedScopeHint(tag) {
-    const hint = this.scopeDesc(tag);
-    if (tag === 'public' && hint) return `${hint} · ${kbCreateT('publicNote')}`;
-    return hint;
+  isAllPublicTargets() {
+    return this.form.publicTargets.includes('all');
+  },
+
+  publicTargetLabel(value) {
+    if (value === 'all') return kbCreateT('publicTargetsAll');
+    return this.wsLabel(value);
+  },
+
+  renderPublicTargetTags() {
+    const targets = this.isAllPublicTargets() ? ['all'] : this.form.publicTargets;
+    return targets.map(val => `
+      <span class="kb-create-target-tag" data-target="${Knowledge.escapeAttr(val)}">
+        ${Knowledge.escapeHtml(this.publicTargetLabel(val))}
+        <button type="button" class="kb-create-target-remove" data-remove-target="${Knowledge.escapeAttr(val)}" aria-label="移除">×</button>
+      </span>`).join('');
+  },
+
+  renderScopeSection() {
+    const f = this.form;
+    const cards = this.SCOPES.map(tag => `
+      <label class="kb-create-scope kb-create-scope--${tag}${f.tag === tag ? ' selected' : ''}">
+        <input type="radio" name="kbCreateScope" value="${tag}"${f.tag === tag ? ' checked' : ''}>
+        <span class="kb-create-scope-radio" aria-hidden="true"></span>
+        <span class="kb-create-scope-body">
+          <span class="kb-create-scope-head">${Knowledge.escapeHtml(this.scopeLabel(tag))}</span>
+          <span class="kb-create-scope-desc">${Knowledge.escapeHtml(this.scopeDesc(tag))}</span>
+        </span>
+      </label>`).join('');
+
+    const publicTargets = f.tag === 'public' ? `
+      <div class="kb-create-public-targets" id="kbCreatePublicTargets">
+        <div class="kb-create-targets-field${this.publicTargetsOpen ? ' open' : ''}" id="kbCreateTargetsField">
+          <div class="kb-create-target-tags" id="kbCreateTargetTags">${this.renderPublicTargetTags()}</div>
+          <button type="button" class="kb-create-targets-trigger" id="kbCreateTargetsTrigger" aria-expanded="${this.publicTargetsOpen}">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </button>
+          <div class="kb-create-targets-panel" id="kbCreateTargetsPanel"${this.publicTargetsOpen ? '' : ' hidden'}>
+            ${this.getPublicTargetOptions().map(opt => {
+              const checked = opt.value === 'all'
+                ? this.isAllPublicTargets()
+                : !this.isAllPublicTargets() && this.form.publicTargets.includes(opt.value);
+              return `
+              <label class="kb-create-target-option">
+                <input type="checkbox" value="${Knowledge.escapeAttr(opt.value)}"${checked ? ' checked' : ''}>
+                <span>${Knowledge.escapeHtml(opt.label)}</span>
+              </label>`;
+            }).join('')}
+          </div>
+        </div>
+        <p class="kb-create-scope-note">${kbCreateT('publicNote')}</p>
+      </div>` : '';
+
+    return `
+      <div class="kb-create-scope-field">
+        <div class="kb-create-scope-label-row">
+          <span class="kb-create-label">${kbCreateT('publishScope')} <span class="kb-create-required">*</span></span>
+          <button type="button" class="kb-create-help" title="${Knowledge.escapeAttr(kbCreateT('scopeHelp'))}" aria-label="${Knowledge.escapeAttr(kbCreateT('scopeHelp'))}">?</button>
+        </div>
+        <div class="kb-create-scopes kb-create-scopes--inline" role="radiogroup" aria-label="${Knowledge.escapeAttr(kbCreateT('publishScope'))}">
+          ${cards}
+        </div>
+        ${publicTargets}
+      </div>`;
   },
 
   slugFromName(name) {
@@ -65,12 +124,14 @@ const KnowledgeCreate = {
 
   openModal() {
     this.open = true;
+    this.publicTargetsOpen = false;
     this.form = this.defaultForm();
     this.mount();
   },
 
   close() {
     this.open = false;
+    this.publicTargetsOpen = false;
     document.getElementById('kbCreateRoot')?.remove();
   },
 
@@ -91,8 +152,8 @@ const KnowledgeCreate = {
     if (g('kbCreateName')) this.form.name = g('kbCreateName').value;
     if (g('kbCreateDesc')) this.form.description = g('kbCreateDesc').value;
     if (g('kbCreateWorkspace')) this.form.workspace = g('kbCreateWorkspace').value;
-    const scopeVal = document.getElementById(`${this.scopeSelectId}Value`);
-    if (scopeVal) this.form.tag = scopeVal.value || 'workspace';
+    const scopeRadio = document.querySelector('input[name="kbCreateScope"]:checked');
+    if (scopeRadio) this.form.tag = scopeRadio.value;
   },
 
   validate() {
@@ -128,6 +189,7 @@ const KnowledgeCreate = {
       description: this.form.description.trim(),
       purpose: this.form.description.trim(),
       tag: this.form.tag,
+      publicTargets: this.form.tag === 'public' ? [...this.form.publicTargets] : undefined,
       workspace: this.form.workspace,
       status: 'draft',
       docCount: 0,
@@ -158,7 +220,6 @@ const KnowledgeCreate = {
   renderForm() {
     const f = this.form;
     const slug = this.slugFromName(f.name);
-    const scopeOpts = this.scopeOptions();
     return `
       <div class="kb-create-section">
         <label class="kb-create-label" for="kbCreateName">${kbCreateT('name')} <span class="kb-create-required">*</span></label>
@@ -176,14 +237,7 @@ const KnowledgeCreate = {
         </select>
       </div>
       <div class="kb-create-section">
-        ${KbSearchSelect.render(this.scopeSelectId, {
-          label: kbCreateT('publishScope'),
-          required: true,
-          placeholder: kbCreateT('scopeSearchPlaceholder'),
-          value: f.tag,
-          options: scopeOpts,
-          hint: this.selectedScopeHint(f.tag)
-        })}
+        ${this.renderScopeSection()}
       </div>`;
   },
 
@@ -207,6 +261,75 @@ const KnowledgeCreate = {
       </div>`;
   },
 
+  setScope(tag) {
+    this.form.tag = tag;
+    if (tag === 'workspace') {
+      this.publicTargetsOpen = false;
+    } else if (!this.form.publicTargets.length) {
+      this.form.publicTargets = ['all'];
+    }
+    this.refreshScopeSection();
+  },
+
+  refreshScopeSection() {
+    const section = document.querySelector('.kb-create-scope-field')?.closest('.kb-create-section');
+    if (!section) return;
+    section.innerHTML = this.renderScopeSection();
+    this.bindScopeEvents();
+  },
+
+  togglePublicTarget(value, checked) {
+    if (value === 'all') {
+      this.form.publicTargets = checked ? ['all'] : [];
+      if (!this.form.publicTargets.length) this.form.publicTargets = [this.getWorkspaceOptions()[0]];
+    } else if (checked) {
+      const next = this.form.publicTargets.filter(v => v !== 'all');
+      if (!next.includes(value)) next.push(value);
+      this.form.publicTargets = next.length ? next : ['all'];
+    } else {
+      const next = this.form.publicTargets.filter(v => v !== 'all' && v !== value);
+      this.form.publicTargets = next.length ? next : ['all'];
+    }
+    this.refreshScopeSection();
+  },
+
+  removePublicTarget(value) {
+    if (value === 'all') {
+      this.form.publicTargets = [this.getWorkspaceOptions()[0]];
+    } else {
+      const next = this.form.publicTargets.filter(v => v !== value);
+      this.form.publicTargets = next.length ? next : ['all'];
+    }
+    this.refreshScopeSection();
+  },
+
+  bindScopeEvents() {
+    document.querySelectorAll('input[name="kbCreateScope"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.checked) this.setScope(radio.value);
+      });
+    });
+
+    document.getElementById('kbCreateTargetsTrigger')?.addEventListener('click', e => {
+      e.stopPropagation();
+      this.publicTargetsOpen = !this.publicTargetsOpen;
+      this.refreshScopeSection();
+    });
+
+    document.querySelectorAll('#kbCreateTargetsPanel input[type="checkbox"]').forEach(box => {
+      box.addEventListener('change', () => {
+        this.togglePublicTarget(box.value, box.checked);
+      });
+    });
+
+    document.querySelectorAll('[data-remove-target]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        this.removePublicTarget(btn.dataset.removeTarget);
+      });
+    });
+  },
+
   bindEvents() {
     document.getElementById('kbCreateBackdrop')?.addEventListener('click', () => this.close());
     document.getElementById('kbCreateClose')?.addEventListener('click', () => this.close());
@@ -228,26 +351,30 @@ const KnowledgeCreate = {
       }
     });
 
-    KbSearchSelect.bind(this.scopeSelectId, {
-      options: this.scopeOptions(),
-      onChange: (val) => {
-        this.form.tag = val;
-        const hint = document.getElementById(`${this.scopeSelectId}Hint`);
-        if (hint) hint.textContent = this.selectedScopeHint(val);
-      }
-    });
+    this.bindScopeEvents();
 
     if (!this._escBound) {
       this._escBound = true;
       document.addEventListener('keydown', e => {
         if (e.key !== 'Escape' || !this.open) return;
-        const openPanel = document.querySelector('#kbCreateRoot .kb-search-select.open');
-        if (openPanel) {
-          KbSearchSelect.instances[this.scopeSelectId]?.close?.();
+        if (this.publicTargetsOpen) {
+          this.publicTargetsOpen = false;
+          this.refreshScopeSection();
           e.stopPropagation();
           return;
         }
         this.close();
+      });
+    }
+
+    if (!this._targetsDocBound) {
+      this._targetsDocBound = true;
+      document.addEventListener('click', e => {
+        if (!this.open || !this.publicTargetsOpen) return;
+        if (!e.target.closest('#kbCreateTargetsField')) {
+          this.publicTargetsOpen = false;
+          this.refreshScopeSection();
+        }
       });
     }
   }

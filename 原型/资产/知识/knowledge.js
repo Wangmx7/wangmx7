@@ -156,6 +156,7 @@ const Knowledge = {
         this.render();
       });
     }
+    this.workspace = xsparkDefaultWorkspaceFilter();
     this.render();
   },
 

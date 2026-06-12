@@ -45,6 +45,7 @@ const OpsAnalysis = {
         this.render();
       });
     }
+    this.workspace = xsparkDefaultWorkspaceFilter();
     this.overviewAiResult = OpsAnalysisAiEngine.analyze('', this.getSnapshot(), 'overview');
     this.render();
   },

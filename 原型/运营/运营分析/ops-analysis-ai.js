@@ -31,7 +31,7 @@ const OpsAnalysisAiEngine = {
           `**需关注**：${snapshot.alerts.slice(0, 2).map(a => a.title).join('；') || '暂无显著异常'}。`,
           `**运营建议**：`,
           `1. 对 chat 场景启用 embedding 批处理，预计降本 8–12%`,
-          `2. 优先消化 Default Workspace 审批积压（>24h 共 4 项）`,
+          `2. 优先消化 Global WorkSpace 审批积压（>24h 共 4 项）`,
           `3. 对 7 日零调用 Skill 做下架或 Skillhub 曝光优化`
         ].join('\n\n')
       };

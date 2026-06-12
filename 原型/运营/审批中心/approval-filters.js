@@ -4,7 +4,7 @@ const ApprovalFilterEngine = {
       typeDropdown: '',
       resourceType: '',
       historyStatus: '',
-      workspace: '',
+      workspace: xsparkDefaultWorkspaceFilter(),
       search: ''
     };
   },

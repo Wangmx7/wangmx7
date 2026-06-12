@@ -4,14 +4,17 @@ const XSparkSidebar = {
   userMenuOpen: false,
   aiConsoleOpen: false,
   topbarEl: null,
+  GLOBAL_WORKSPACE: 'Global WorkSpace',
 
   init(container, options = {}) {
     this.container = typeof container === 'string' ? document.querySelector(container) : container;
     this.onNavigate = options.onNavigate || (() => {});
     this.onUserMenu = options.onUserMenu || (() => {});
     this.onAiConsole = options.onAiConsole || (() => {});
+    this.onWorkspaceChange = options.onWorkspaceChange || (() => {});
     this.activeAiConsole = options.activeAiConsole || '';
     this.activeId = options.activeId || SIDEBAR_CONFIG.defaultActive;
+    this.restoreWorkspace();
     this.restoreTheme();
     this.ensureTopbar();
     this.render();
@@ -161,6 +164,41 @@ const XSparkSidebar = {
     return typeof XSparkI18n !== 'undefined' ? XSparkI18n.workspaceLabel(canonical) : canonical;
   },
 
+  getCurrentWorkspace() {
+    return SIDEBAR_CONFIG?.workspace?.label || '';
+  },
+
+  restoreWorkspace() {
+    const saved = localStorage.getItem('xsparkops-workspace');
+    if (saved && SIDEBAR_CONFIG.workspace.options.includes(saved)) {
+      SIDEBAR_CONFIG.workspace.label = saved;
+    }
+  },
+
+  persistWorkspace(label) {
+    SIDEBAR_CONFIG.workspace.label = label;
+    localStorage.setItem('xsparkops-workspace', label);
+  },
+
+  isGlobalWorkSpace(label) {
+    return (label || SIDEBAR_CONFIG.workspace.label) === this.GLOBAL_WORKSPACE;
+  },
+
+  isSuperAdmin() {
+    return SIDEBAR_CONFIG.user?.role === 'super_admin';
+  },
+
+  canShowMenuItem(item) {
+    if (!item.requireGlobalWorkspace && !item.requireRole) return true;
+    if (item.requireGlobalWorkspace && !this.isGlobalWorkSpace()) return false;
+    if (item.requireRole && SIDEBAR_CONFIG.user?.role !== item.requireRole) return false;
+    return true;
+  },
+
+  shouldNavigateGlobalAdmin(label) {
+    return label === this.GLOBAL_WORKSPACE && this.isSuperAdmin();
+  },
+
   render() {
     const cfg = SIDEBAR_CONFIG;
     const wsLabel = this.getWorkspaceDisplayLabel(cfg.workspace.label);
@@ -177,7 +215,7 @@ const XSparkSidebar = {
       </div>
 
       <nav class="xs-sidebar__nav" id="xsNav">
-        ${cfg.items.map(item => this.renderItem(item)).join('')}
+        ${cfg.items.filter(item => this.canShowMenuItem(item)).map(item => this.renderItem(item)).join('')}
       </nav>
 
       <footer class="xs-sidebar__footer">
@@ -237,11 +275,26 @@ const XSparkSidebar = {
     menu?.querySelectorAll('.xs-sidebar__workspace-option').forEach(el => {
       el.addEventListener('click', () => {
         const label = el.dataset.ws;
+        this.persistWorkspace(label);
         this.container.querySelector('#xsWorkspaceLabel').textContent = this.getWorkspaceDisplayLabel(label);
         menu.querySelectorAll('.xs-sidebar__workspace-option').forEach(o => o.classList.toggle('active', o === el));
         this.workspaceOpen = false;
         toggle.classList.remove('open');
         menu.classList.remove('show');
+        this.onWorkspaceChange({ label });
+        if (this.shouldNavigateGlobalAdmin(label)) {
+          if (!this.isCurrentPage('原型/治理/全局管理/index.html')) {
+            window.location.href = this.resolvePageHref('原型/治理/全局管理/index.html');
+          } else {
+            this.render();
+          }
+          return;
+        }
+        if (this.isCurrentPage('原型/治理/全局管理/index.html') && !this.isGlobalWorkSpace(label)) {
+          window.location.href = this.resolvePageHref('原型/资产/知识/index.html');
+        } else {
+          this.render();
+        }
       });
     });
 
@@ -394,3 +447,11 @@ const XSparkSidebar = {
     });
   }
 };
+
+/** 页面内 Workspace 筛选框默认值：当前 Sidebar 选中的 Workspace */
+function xsparkDefaultWorkspaceFilter() {
+  if (typeof XSparkSidebar !== 'undefined' && XSparkSidebar.getCurrentWorkspace) {
+    return XSparkSidebar.getCurrentWorkspace();
+  }
+  return typeof SIDEBAR_CONFIG !== 'undefined' ? (SIDEBAR_CONFIG.workspace?.label || '') : '';
+}

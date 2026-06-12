@@ -16,7 +16,7 @@ const TraceFilterEngine = {
     return {
       type: [], status: [], isRoot: [], model: [], tags: [],
       traceName: '', name: '', userId: '', sessionId: '', traceId: '',
-      workspace: '', search: ''
+      workspace: xsparkDefaultWorkspaceFilter(), search: ''
     };
   },
 
@@ -81,7 +81,7 @@ const TraceFilterEngine = {
 
     if (/人工智能实验室|ai.lab|ai lab/.test(t)) { f.workspace = '人工智能实验室'; applied.push('Workspace = 人工智能实验室'); }
     if (/it.?运维|运维 workspace/.test(t)) { f.workspace = 'IT 运维 Workspace'; applied.push('Workspace = IT 运维 Workspace'); }
-    if (/default workspace|默认 workspace/.test(t)) { f.workspace = 'Default Workspace'; applied.push('Workspace = Default Workspace'); }
+    if (/global workspace|default workspace|默认 workspace/.test(t)) { f.workspace = 'Global WorkSpace'; applied.push('Workspace = Global WorkSpace'); }
 
     if (!applied.length) {
       f.search = text.trim();

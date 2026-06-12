@@ -12,11 +12,11 @@ const TOOL_FILTER_DEFS = [
 
 const GovFilterEngine = {
   emptyAuditFilters() {
-    return { action: '', resourceType: '', risk: '', workspace: '', search: '' };
+    return { action: '', resourceType: '', risk: '', workspace: xsparkDefaultWorkspaceFilter(), search: '' };
   },
 
   emptyToolFilters() {
-    return { type: '', status: '', resource: '', workspace: '', search: '' };
+    return { type: '', status: '', resource: '', workspace: xsparkDefaultWorkspaceFilter(), search: '' };
   },
 
   applyAudit(rows, filters) {

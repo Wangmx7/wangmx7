@@ -19,7 +19,7 @@ const Approval = {
   },
 
   getWorkspaceOptions() {
-    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Default Workspace'];
+    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Global WorkSpace'];
   },
 
   wsLabel(name) {
@@ -46,6 +46,7 @@ const Approval = {
         this.render();
       });
     }
+    this.filters.workspace = xsparkDefaultWorkspaceFilter();
     this.render();
     this.openFromQuery();
   },
@@ -272,6 +273,7 @@ const Approval = {
           <summary>${apvT('ai.viewFull')}</summary>
           <div class="apv-ai-summary-body">${ApprovalAiSummaryEngine.formatMarkdown(result.summary)}</div>
         </details>
+        ${typeof ApprovalAiChat !== 'undefined' ? ApprovalAiChat.renderPanel(item, role) : ''}
       </div>`;
   },
 
@@ -448,6 +450,20 @@ const Approval = {
     this.bindRowClicks();
     this.bindDrawerEvents();
     this.bindSubmitPreviewEvents();
+    this.bindAiChatEvents();
+  },
+
+  bindAiChatEvents() {
+    if (typeof ApprovalAiChat === 'undefined') return;
+    const item = this.drawerOpen ? this.getItem(this.drawerId) : null;
+    if (item) {
+      ApprovalAiChat.bindPanel(item, this.getViewerRole(item), () => this.render());
+      return;
+    }
+    if (this.submitPreviewOpen) {
+      const draft = this.getDraftItem();
+      ApprovalAiChat.bindPanel(draft, 'submitter', () => this.render());
+    }
   },
 
   updateKpiActive() {

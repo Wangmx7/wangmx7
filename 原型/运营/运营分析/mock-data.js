@@ -1,9 +1,9 @@
 const OPS_MOCK = {
-  workspaces: ['人工智能实验室', 'IT 运维 Workspace', 'Default Workspace'],
+  workspaces: ['人工智能实验室', 'IT 运维 Workspace', 'Global WorkSpace'],
 
   getScale(workspace) {
     if (!workspace) return 1;
-    const map = { '人工智能实验室': 0.52, 'IT 运维 Workspace': 0.28, 'Default Workspace': 0.20 };
+    const map = { '人工智能实验室': 0.52, 'IT 运维 Workspace': 0.28, 'Global WorkSpace': 0.20 };
     return map[workspace] || 0.33;
   },
 
@@ -42,7 +42,7 @@ const OPS_MOCK = {
       workspaceCompare: [
         { name: '人工智能实验室', sessions: mul(1780), cost: mulF(148.2), users: mul(148) },
         { name: 'IT 运维 Workspace', sessions: mul(960), cost: mulF(79.6), users: mul(82) },
-        { name: 'Default Workspace', sessions: mul(681), cost: mulF(56.8), users: mul(54) }
+        { name: 'Global WorkSpace', sessions: mul(681), cost: mulF(56.8), users: mul(54) }
       ],
       healthRadar: [
         { dim: '使用', score: Math.min(95, Math.round(72 * s * 100) / 100 + 20) },
@@ -53,9 +53,9 @@ const OPS_MOCK = {
       ],
       alerts: [
         { id: 'a1', severity: 'high', category: '成本', title: '人工智能实验室本周 LLM 成本 +18%', workspace: '人工智能实验室', trend: '+18%', aiInsight: '主因 feature:chat 场景 DAU 上升 40%，gpt-4o 调用占比达 62%。建议对 embedding 批处理合并请求，并将非实时对话降级至 qwen-max。' },
-        { id: 'a2', severity: 'high', category: '审批', title: '平台发布审批积压 4 项超 24h', workspace: 'Default Workspace', trend: '4 项', aiInsight: 'data-export Skill 与 test-bot Agent 等待最久。建议管理员优先处理含 export 能力的发布类审批。' },
+        { id: 'a2', severity: 'high', category: '审批', title: '平台发布审批积压 4 项超 24h', workspace: 'Global WorkSpace', trend: '4 项', aiInsight: 'data-export Skill 与 test-bot Agent 等待最久。建议管理员优先处理含 export 能力的发布类审批。' },
         { id: 'a3', severity: 'medium', category: '质量', title: 'ops-assistant 错误率升至 2.8%', workspace: '人工智能实验室', trend: '+1.6pp', aiInsight: 'prod-mcp-git 超时占失败 70%。建议在 AI观测 查看 Tool 失败 Trace，并为 MCP 配置熔断。' },
-        { id: 'a4', severity: 'medium', category: '资产', title: '12 个 Skill 7 日零调用', workspace: '全平台', trend: '12', aiInsight: '闲置资产集中在 Default Workspace。建议下架或合并至 Skillhub 公开分类提升曝光。' },
+        { id: 'a4', severity: 'medium', category: '资产', title: '12 个 Skill 7 日零调用', workspace: '全平台', trend: '12', aiInsight: '闲置资产集中在 Global WorkSpace。建议下架或合并至 Skillhub 公开分类提升曝光。' },
         { id: 'a5', severity: 'medium', category: '用户', title: 'user_2847 夜间调用超基线 47 次', workspace: '人工智能实验室', trend: '+47', aiInsight: '夜间窗口调用量为团队均值 3.2 倍。建议设置时段策略或联系 Owner 确认是否为批任务。' }
       ].filter(a => !workspace || a.workspace === workspace || a.workspace === '全平台'),
 
@@ -83,7 +83,7 @@ const OPS_MOCK = {
           { user: 'user_2847', sessions: mul(28), calls: mul(142), lastActive: '2026-06-11 09:12', workspace: '人工智能实验室' },
           { user: 'user_1093', sessions: mul(15), calls: mul(89), lastActive: '2026-06-11 08:45', workspace: 'IT 运维 Workspace' },
           { user: 'user_5521', sessions: mul(12), calls: mul(67), lastActive: '2026-06-11 07:48', workspace: '人工智能实验室' },
-          { user: 'user_3301', sessions: mul(8), calls: mul(41), lastActive: '2026-06-10 16:20', workspace: 'Default Workspace' },
+          { user: 'user_3301', sessions: mul(8), calls: mul(41), lastActive: '2026-06-10 16:20', workspace: 'Global WorkSpace' },
           { user: 'system', sessions: mul(6), calls: mul(38), lastActive: '2026-06-11 07:52', workspace: '人工智能实验室' }
         ],
         topTags: [
@@ -144,9 +144,9 @@ const OPS_MOCK = {
         assetRows: [
           { name: 'ops-assistant', type: 'Agent', workspace: '人工智能实验室', calls7d: mul(4521), successRate: '96%', avgLatency: '2.1s', costShare: '28%', status: '活跃' },
           { name: 'log-analyzer', type: 'Skill', workspace: 'IT 运维 Workspace', calls7d: mul(2890), successRate: '98%', avgLatency: '1.4s', costShare: '12%', status: '活跃' },
-          { name: 'data-export', type: 'Skill', workspace: 'Default Workspace', calls7d: mul(890), successRate: '88%', avgLatency: '3.2s', costShare: '8%', status: '活跃' },
-          { name: 'legacy-parser', type: 'Skill', workspace: 'Default Workspace', calls7d: 0, successRate: '—', avgLatency: '—', costShare: '0%', status: '闲置' },
-          { name: 'test-bot', type: 'Agent', workspace: 'Default Workspace', calls7d: mul(12), successRate: '75%', avgLatency: '4.8s', costShare: '1%', status: '低活跃' },
+          { name: 'data-export', type: 'Skill', workspace: 'Global WorkSpace', calls7d: mul(890), successRate: '88%', avgLatency: '3.2s', costShare: '8%', status: '活跃' },
+          { name: 'legacy-parser', type: 'Skill', workspace: 'Global WorkSpace', calls7d: 0, successRate: '—', avgLatency: '—', costShare: '0%', status: '闲置' },
+          { name: 'test-bot', type: 'Agent', workspace: 'Global WorkSpace', calls7d: mul(12), successRate: '75%', avgLatency: '4.8s', costShare: '1%', status: '低活跃' },
           { name: 'prod-mcp-git', type: 'MCP', workspace: '人工智能实验室', calls7d: mul(720), successRate: '82%', avgLatency: '3.8s', costShare: '9%', status: '活跃' },
           { name: 'tool-call-weather', type: 'Tool', workspace: '人工智能实验室', calls7d: mul(480), successRate: '89%', avgLatency: '0.8s', costShare: '4%', status: '活跃' }
         ].filter(r => !workspace || r.workspace === workspace)
@@ -167,7 +167,7 @@ const OPS_MOCK = {
         byWorkspace: [
           { name: '人工智能实验室', cost: mulF(148.2), pct: 52 },
           { name: 'IT 运维 Workspace', cost: mulF(79.6), pct: 28 },
-          { name: 'Default Workspace', cost: mulF(56.8), pct: 20 }
+          { name: 'Global WorkSpace', cost: mulF(56.8), pct: 20 }
         ],
         byAgent: [
           { name: 'ops-assistant', cost: mulF(79.8), calls: mul(4521) },
@@ -204,7 +204,7 @@ const OPS_MOCK = {
           { bucket: '>24h', count: mul(5), pct: 18 }
         ],
         backlog: [
-          { resource: 'data-export', type: '平台发布', waiting: '19h 7m', workspace: 'Default Workspace', submitter: 'user_3301' },
+          { resource: 'data-export', type: '平台发布', waiting: '19h 7m', workspace: 'Global WorkSpace', submitter: 'user_3301' },
           { resource: 'ops-assistant-v2', type: '平台发布', waiting: '4h 57m', workspace: '人工智能实验室', submitter: 'user_1093' },
           { resource: 'ops-assistant', type: 'L3级操作', waiting: '2h 15m', workspace: '人工智能实验室', submitter: 'user_2847' },
           { resource: 'pm-agent', type: 'Skillhub 发布', waiting: '6h 16m', workspace: '全平台', submitter: 'user_5521' },
@@ -267,7 +267,7 @@ const OPS_MOCK = {
         topErrors: [
           { asset: 'ops-assistant', type: 'Agent', count: mul(28), workspace: '人工智能实验室' },
           { asset: 'prod-mcp-git', type: 'MCP', count: mul(18), workspace: '人工智能实验室' },
-          { asset: 'data-export', type: 'Skill', count: mul(9), workspace: 'Default Workspace' }
+          { asset: 'data-export', type: 'Skill', count: mul(9), workspace: 'Global WorkSpace' }
         ].filter(r => !workspace || r.workspace === workspace),
         feedbacks: [
           { user: 'user_2847', category: '性能', summary: '对话响应偶尔超过 5 秒', time: '2026-06-11 08:30' },

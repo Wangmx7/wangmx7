@@ -116,7 +116,7 @@ const AGENT_MOCK = {
       summary: '财务报表查询与指标解读，绑定 finance-mcp-read',
       category: '财务',
       icon: '💰',
-      workspace: 'Default Workspace',
+      workspace: 'Global WorkSpace',
       owner: '王小明',
       status: 'draft',
       version: '0.1.0',
@@ -131,7 +131,7 @@ const AGENT_MOCK = {
         autonomyLevel: 'L1',
         sandboxPolicy: '只读沙箱'
       },
-      publishScope: 'Default Workspace',
+      publishScope: 'Global WorkSpace',
       purpose: '财务部门自助查询',
       riskBoundary: '只读财务系统，禁止批量导出'
     },
@@ -217,7 +217,7 @@ const AGENT_MOCK = {
       summary: '内部测试 Agent，MCP 权限被驳回',
       category: '研发',
       icon: '🧪',
-      workspace: 'Default Workspace',
+      workspace: 'Global WorkSpace',
       owner: '王小明',
       status: 'rejected',
       version: '0.1.0',
@@ -235,7 +235,7 @@ const AGENT_MOCK = {
         autonomyLevel: 'L3',
         sandboxPolicy: '生产只读'
       },
-      publishScope: 'Default Workspace',
+      publishScope: 'Global WorkSpace',
       changeLog: '初版发布',
       purpose: '内部测试',
       riskBoundary: '—'

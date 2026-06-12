@@ -24,7 +24,7 @@ const Governance = {
   },
 
   getWorkspaceOptions() {
-    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Default Workspace'];
+    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Global WorkSpace'];
   },
 
   getWorkspaceLabel() {
@@ -49,6 +49,10 @@ const Governance = {
         this.render();
       });
     }
+    const ws = xsparkDefaultWorkspaceFilter();
+    this.workspace = ws;
+    this.auditFilters.workspace = ws;
+    this.toolFilters.workspace = ws;
     this.setTab('overview');
   },
 

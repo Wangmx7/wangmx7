@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模型服务 — Lenovo xSpark</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #266AEE;
+      --primary-dark: #1059E9;
+      --sidebar-bg: #F5F7FA;
+      --sidebar-w: 220px;
+      --topbar-h: 56px;
+      --text: #1D232D;
+      --text-2: #545D6D;
+      --text-3: #7D8696;
+      --border: #E8ECF0;
+      --card: #fff;
+      --bg: #F3F5F8;
+      --green: #12B76A;
+      --red: #F04438;
+      --mono: "JetBrains Mono", Consolas, monospace;
+    }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--topbar-h);
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--primary-dark);
+    }
+    .topbar-logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #266AEE, #6A57C8);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 11px; font-weight: 700;
+    }
+    .topbar-actions {
+      display: flex; align-items: center; gap: 16px;
+      color: var(--text-2);
+    }
+    .topbar-icon {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      cursor: pointer; color: inherit;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .topbar-icon:hover { background: #F0F2F5; }
+    .topbar-user {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; cursor: pointer;
+    }
+    .topbar-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+    }
+
+    /* Layout */
+    .layout { display: flex; padding-top: var(--topbar-h); min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+      position: fixed;
+      top: var(--topbar-h);
+      bottom: 0;
+      overflow-y: auto;
+      padding: 12px 0 24px;
+    }
+    .sidebar-workspace {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px 12px;
+      font-weight: 600; font-size: 14px;
+      cursor: pointer;
+    }
+    .sidebar-section {
+      padding: 16px 16px 6px;
+      font-size: 12px; color: var(--text-3); font-weight: 500;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 9px 16px;
+      border: none; background: none;
+      font-size: 13px; color: var(--text-2);
+      cursor: pointer; text-align: left;
+      font-family: inherit;
+    }
+    .sidebar-item:hover { background: rgba(16,89,233,.06); color: var(--text); }
+    .sidebar-item.active {
+      background: #E8F0FD;
+      color: var(--primary-dark);
+      font-weight: 500;
+      border-right: 3px solid var(--primary-dark);
+    }
+    .sidebar-item svg { flex-shrink: 0; opacity: .75; }
+    .sidebar-item.active svg { opacity: 1; }
+
+    /* Main */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-height: calc(100vh - var(--topbar-h));
+      display: flex;
+      flex-direction: column;
+    }
+    .page-head {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+    }
+    .page-head h1 { font-size: 18px; font-weight: 600; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px;
+      background: var(--primary-dark);
+      color: #fff; border: none; border-radius: 4px;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { filter: brightness(1.06); }
+
+    .content { flex: 1; padding: 16px 24px 24px; overflow: auto; background: var(--bg); }
+
+    .filter-bar {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .filter-bar .select {
+      min-width: 140px;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--card);
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .search-group {
+      display: flex; align-items: stretch;
+      margin-left: auto;
+    }
+    .search-input {
+      width: 200px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-right: none;
+      border-radius: 4px 0 0 4px;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+    .search-input:focus { border-color: var(--primary-dark); }
+    .btn-search {
+      padding: 0 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0 4px 4px 0;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+    }
+    .btn-search:hover { color: var(--primary-dark); border-color: var(--primary-dark); }
+    .view-select { min-width: 110px; }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 1400px) { .model-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1100px) { .model-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .model-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      min-height: 148px;
+      display: flex;
+      flex-direction: column;
+    }
+    .model-card:hover {
+      border-color: #B8D4FF;
+      box-shadow: 0 2px 8px rgba(16,89,233,.08);
+    }
+    .model-card.selected {
+      border-color: var(--primary-dark);
+      background: linear-gradient(180deg, #F5F9FF 0%, #fff 100%);
+      box-shadow: 0 0 0 1px var(--primary-dark);
+    }
+    .model-card-head {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .model-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 18px;
+    }
+    .model-icon--purple { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); }
+    .model-icon--blue { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); }
+    .model-icon--cyan { background: linear-gradient(135deg, #CFFAFE, #A5F3FC); }
+    .model-name {
+      font-size: 15px; font-weight: 600; color: var(--text);
+      line-height: 1.3;
+      word-break: break-all;
+    }
+    .model-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: auto;
+      padding-top: 4px;
+    }
+    .model-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      background: #E8F0FD;
+      color: var(--primary-dark);
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    .model-tag--default {
+      background: #FEF3C7;
+      color: #B45309;
+    }
+    .model-card-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #F0F2F5;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .model-status {
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .status-dot--running { background: var(--green); }
+    .status-dot--stopped { background: #98A2B3; }
+    .status-dot--starting { background: #F79009; animation: pulse 1.2s infinite; }
+    .status-dot--stopping { background: #F79009; opacity: .7; }
+    .status-dot--error { background: var(--red); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .card-menu-wrap {
+      position: relative;
+    }
+    .card-menu {
+      background: none; border: none; color: var(--text-3);
+      cursor: pointer; padding: 4px 6px; font-size: 16px; line-height: 1;
+      border-radius: 4px;
+    }
+    .card-menu:hover, .card-menu.active { color: var(--primary-dark); background: #F0F4FF; }
+    .card-dropdown {
+      display: none;
+      position: absolute;
+      right: 0; bottom: calc(100% + 4px);
+      min-width: 120px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      padding: 4px 0;
+      z-index: 50;
+    }
+    .card-dropdown.show { display: block; }
+    .card-dropdown-item {
+      display: block; width: 100%;
+      padding: 8px 16px;
+      border: none; background: none;
+      text-align: left;
+      font-size: 13px; color: var(--text);
+      cursor: pointer; font-family: inherit;
+      white-space: nowrap;
+    }
+    .card-dropdown-item:hover { background: #F5F7FA; color: var(--primary-dark); }
+    .card-dropdown-item:disabled {
+      color: var(--text-3); cursor: not-allowed;
+    }
+    .card-dropdown-item:disabled:hover { background: none; color: var(--text-3); }
+    .card-dropdown-item--danger { color: var(--red); }
+    .card-dropdown-item--danger:hover { background: #FEF3F2; color: var(--red); }
+    .card-dropdown-divider {
+      height: 1px; background: var(--border);
+      margin: 4px 0;
+    }
+
+    .pagination {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 12px; margin-top: 20px;
+      font-size: 13px; color: var(--text-2);
+    }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn {
+      min-width: 32px; height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--card);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+    }
+    .page-btn:hover { border-color: var(--primary-dark); color: var(--primary-dark); }
+    .page-btn.active {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: #fff;
+    }
+    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 64px 24px;
+      text-align: center;
+      color: var(--text-2);
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+
+    .mono { font-family: var(--mono); font-size: 12px; color: var(--text-2); }
+
+    /* Modal */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(29,35,45,.45);
+      display: none; align-items: center; justify-content: center;
+      z-index: 200; padding: 24px;
+    }
+    .overlay.show { display: flex; }
+    .modal {
+      width: 100%; max-width: 720px;
+      background: var(--card);
+      border-radius: 8px;
+      box-shadow: 0 16px 48px rgba(0,0,0,.16);
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 16px; font-weight: 600;
+    }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-2); }
+    .modal-body { padding: 24px 24px 8px; }
+    .modal-foot {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 24px;
+    }
+    .form-grid .span-2 { grid-column: 1 / -1; }
+    .form-field { min-width: 0; }
+    .form-label {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 13px; color: var(--text);
+      margin-bottom: 8px;
+    }
+    .form-label .req { color: var(--red); margin-right: 2px; }
+    .form-label .tip {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--text-3);
+      color: var(--text-3);
+      font-size: 10px; font-style: normal;
+      cursor: help;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: 4px;
+      font-size: 13px; font-family: inherit;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--primary-dark);
+      box-shadow: 0 0 0 2px rgba(16,89,233,.12);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: #BFC5CE; }
+    .modal-foot .btn-test {
+      color: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+    .modal-foot .btn-test:hover {
+      background: #E8F0FD;
+    }
+    .form-textarea-wrap { position: relative; }
+    .form-textarea {
+      min-height: 88px;
+      resize: vertical;
+      padding-bottom: 24px;
+    }
+    .form-counter {
+      position: absolute;
+      right: 12px; bottom: 8px;
+      font-size: 12px; color: var(--text-3);
+      pointer-events: none;
+    }
+    .btn-ghost {
+      padding: 8px 20px;
+      border: 1px solid var(--border); border-radius: 4px;
+      background: #fff; font-size: 13px; cursor: pointer; font-family: inherit;
+    }
+    .btn-ghost:hover { border-color: var(--primary-dark); color: var(--primary-dark); }
+
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%);
+      background: #1D232D; color: #fff;
+      padding: 10px 18px; border-radius: 8px;
+      font-size: 13px; z-index: 300;
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      display: none;
+    }
+    .toast.show { display: block; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">xS</div>
+      <span>Lenovo xSpark</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-icon" title="消息" onclick="toast('原型演示：消息中心')">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 5.5c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v5c0 1.1-.9 2-2 2H9l-3.5 2.5V5.5z" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+      <button class="topbar-icon" title="帮助" onclick="toast('原型演示：帮助中心')">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 7.2a1.8 1.8 0 00-1.2 3.1V11M10 13.2v.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="topbar-icon" title="通知">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 3.5a4.5 4.5 0 014.5 4.5v2.5l1 2H4.5l1-2V8a4.5 4.5 0 014.5-4.5z" stroke="currentColor" stroke-width="1.4"/><path d="M8.5 15a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+      <div class="topbar-user">
+        <span class="topbar-avatar">王</span>
+        <span>王小明</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-workspace">
+        <span>xCloud</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+
+      <div class="sidebar-section">运营分析</div>
+      <button class="sidebar-item" onclick="toast('跳转：用户运营')">用户运营</button>
+      <button class="sidebar-item" onclick="toast('跳转：调用统计')">调用统计</button>
+      <button class="sidebar-item" onclick="toast('跳转：会话监测')">会话监测</button>
+      <button class="sidebar-item" onclick="toast('跳转：知识运营')">知识运营</button>
+      <button class="sidebar-item" onclick="toast('跳转：数据运营')">数据运营</button>
+      <button class="sidebar-item" onclick="toast('跳转：智能体运营')">智能体运营</button>
+
+      <div class="sidebar-section">系统管理</div>
+      <button class="sidebar-item" onclick="toast('跳转：API Key')">API Key</button>
+      <button class="sidebar-item" onclick="toast('跳转：系统配置')">系统配置</button>
+      <button class="sidebar-item" onclick="toast('跳转：用户反馈')">用户反馈</button>
+      <button class="sidebar-item" onclick="toast('跳转：凭证管理')">凭证管理</button>
+      <button class="sidebar-item" onclick="toast('跳转：问答模板配置')">问答模板配置</button>
+      <button class="sidebar-item" onclick="toast('跳转：项目成员')">项目成员</button>
+      <button class="sidebar-item active">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="4" y="5.5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 9.5h6M7 12h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        模型服务
+      </button>
+    </aside>
+
+    <main class="main">
+      <header class="page-head">
+        <h1>模型服务</h1>
+      </header>
+
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+
+  <div class="overlay" id="modalOverlay">
+    <div class="modal" role="dialog">
+      <div class="modal-head">
+        <span id="modalTitle">接入模型</span>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label"><span class="req">*</span> 服务名称</label>
+            <input class="form-input" id="formServiceName" placeholder="请输入">
+          </div>
+          <div class="form-field">
+            <label class="form-label"><span class="req">*</span> API格式</label>
+            <select class="form-select" id="formApiFormat">
+              <option value="OpenAI" selected>OpenAI</option>
+              <option value="Azure">Azure OpenAI</option>
+              <option value="Anthropic">Anthropic</option>
+              <option value="Custom">自定义</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label"><span class="req">*</span> 模型URL</label>
+            <input class="form-input mono" id="formModelUrl" placeholder="请输入">
+          </div>
+          <div class="form-field">
+            <label class="form-label"><span class="req">*</span> KEY</label>
+            <input class="form-input mono" id="formKey" type="password" placeholder="请输入">
+          </div>
+          <div class="form-field">
+            <label class="form-label"><span class="req">*</span> 模型名称</label>
+            <input class="form-input" id="formModelName" placeholder="请输入">
+          </div>
+          <div class="form-field">
+            <label class="form-label"><span class="req">*</span> 模型类型</label>
+            <select class="form-select" id="formModelType">
+              <option value="" disabled selected>请选择</option>
+              <option value="chat">文本生成</option>
+              <option value="audio">语音识别</option>
+              <option value="image">图像理解</option>
+              <option value="rerank">重排序</option>
+              <option value="embedding">向量嵌入</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">
+              <span class="req">*</span> Max length
+              <i class="tip" title="模型支持的最大上下文 Token 长度">i</i>
+            </label>
+            <input class="form-input" id="formMaxLength" type="number" value="8192" min="1">
+          </div>
+          <div class="form-field span-2">
+            <label class="form-label">服务描述</label>
+            <div class="form-textarea-wrap">
+              <textarea class="form-textarea" id="formDesc" maxlength="200" placeholder="请输入" oninput="updateDescCounter()"></textarea>
+              <span class="form-counter" id="formDescCounter">0 / 200</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-ghost" onclick="closeModal()">取消</button>
+        <button class="btn-ghost btn-test" onclick="testLink()">测试连接</button>
+        <button class="btn-primary" onclick="saveApi()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const MODEL_TYPES = {
+      chat: { label: '文本生成', icon: 'Tt' },
+      audio: { label: '语音识别', icon: '🎤' },
+      image: { label: '图像理解', icon: '🖼' },
+      rerank: { label: '重排序', icon: '⚖' },
+      embedding: { label: '向量嵌入', icon: 'Vec' }
+    };
+    const MODEL_STATUS = {
+      starting: { label: '启动中', dot: 'starting' },
+      running: { label: '运行', dot: 'running' },
+      stopping: { label: '停止中', dot: 'stopping' },
+      stopped: { label: '停止', dot: 'stopped' },
+      error: { label: '异常', dot: 'error' }
+    };
+
+    let search = '';
+    let typeFilter = '';
+    let statusFilter = '';
+    let editingId = null;
+    let selectedId = null;
+    let openMenuId = null;
+    let page = 1;
+    let pageSize = 24;
+
+    let apis = [
+      { id: 'api-1', serviceName: 'Qwen3-32B 服务', apiFormat: 'OpenAI', modelUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', key: 'sk-****9b1c', modelName: 'Qwen3-32B', modelType: 'chat', maxLength: 32768, description: '', modelStatus: 'running', isDefault: true, icon: 'purple', updated: '2026-06-10 14:32' },
+      { id: 'api-2', serviceName: 'DeepSeek 生产', apiFormat: 'OpenAI', modelUrl: 'https://api.deepseek.com/v1', key: 'sk-****7f2a', modelName: 'DeepSeek-V4-Pro', modelType: 'chat', maxLength: 8192, description: '生产环境', modelStatus: 'running', isDefault: false, icon: 'purple', updated: '2026-06-10 14:32' },
+      { id: 'api-3', serviceName: 'DeepSeek Coder', apiFormat: 'OpenAI', modelUrl: 'https://api.deepseek.com/v1', key: 'sk-****7f2a', modelName: 'DeepSeek-Coder', modelType: 'chat', maxLength: 8192, description: '', modelStatus: 'running', isDefault: false, icon: 'purple', updated: '2026-06-09 11:20' },
+      { id: 'api-4', serviceName: 'Whisper 服务', apiFormat: 'OpenAI', modelUrl: 'https://api.openai.com/v1', key: 'sk-****a1b2', modelName: 'whisper-large-v3', modelType: 'audio', maxLength: 4096, description: '', modelStatus: 'running', isDefault: false, icon: 'blue', updated: '2026-06-08 09:15' },
+      { id: 'api-5', serviceName: 'CLIP 视觉', apiFormat: 'OpenAI', modelUrl: 'https://api.internal/v1', key: 'sk-****c3d4', modelName: 'clip-vit-large', modelType: 'image', maxLength: 2048, description: '', modelStatus: 'running', isDefault: false, icon: 'cyan', updated: '2026-06-08 09:15' },
+      { id: 'api-6', serviceName: 'BGE Rerank', apiFormat: 'OpenAI', modelUrl: 'https://api.internal/v1', key: 'sk-****e5f6', modelName: 'bge-reranker-v2', modelType: 'rerank', maxLength: 512, description: '', modelStatus: 'running', isDefault: false, icon: 'blue', updated: '2026-06-07 16:40' },
+      { id: 'api-7', serviceName: 'Gemma 服务', apiFormat: 'OpenAI', modelUrl: 'https://llm-gateway.internal/v1', key: 'sk-****g7h8', modelName: 'gemma-4-31b-it', modelType: 'chat', maxLength: 8192, description: '', modelStatus: 'stopped', isDefault: false, icon: 'purple', updated: '2026-06-06 10:00' },
+      { id: 'api-8', serviceName: 'Qwen2.5 嵌入', apiFormat: 'OpenAI', modelUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', key: 'sk-****i9j0', modelName: 'Qwen2.5-Embedding', modelType: 'embedding', maxLength: 8192, description: '', modelStatus: 'running', isDefault: false, icon: 'blue', updated: '2026-06-05 18:40' },
+      { id: 'api-9', serviceName: 'GPT-4o 网关', apiFormat: 'Custom', modelUrl: 'https://llm-gateway.internal/v1', key: 'sk-****e4d8', modelName: 'gpt-4o', modelType: 'chat', maxLength: 8192, description: '内网网关', modelStatus: 'error', isDefault: false, icon: 'cyan', updated: '2026-06-05 18:40' },
+      { id: 'api-10', serviceName: 'Llama3 推理', apiFormat: 'OpenAI', modelUrl: 'https://api.internal/v1', key: 'sk-****k1l2', modelName: 'Llama-3-70B', modelType: 'chat', maxLength: 8192, description: '', modelStatus: 'starting', isDefault: false, icon: 'purple', updated: '2026-06-04 08:30' },
+      { id: 'api-11', serviceName: 'MiniCPM 服务', apiFormat: 'OpenAI', modelUrl: 'https://api.internal/v1', key: 'sk-****m3n4', modelName: 'MiniCPM-V-2.6', modelType: 'image', maxLength: 4096, description: '', modelStatus: 'stopping', isDefault: false, icon: 'cyan', updated: '2026-06-03 14:20' },
+      { id: 'api-12', serviceName: 'Qwen3-72B', apiFormat: 'OpenAI', modelUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', key: 'sk-****o5p6', modelName: 'Qwen3-72B', modelType: 'chat', maxLength: 128000, description: '', modelStatus: 'running', isDefault: false, icon: 'purple', updated: '2026-06-02 11:00' }
+    ];
+
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    function modelIconHtml(icon) {
+      const cls = icon === 'blue' ? 'model-icon--blue' : icon === 'cyan' ? 'model-icon--cyan' : 'model-icon--purple';
+      return `<div class="model-icon ${cls}">🧊</div>`;
+    }
+
+    function modelTagsHtml(item) {
+      const t = MODEL_TYPES[item.modelType] || { label: item.modelType, icon: '' };
+      let html = `<span class="model-tag"><span>${t.icon}</span> ${t.label}</span>`;
+      if (item.isDefault) html += `<span class="model-tag model-tag--default">默认模型</span>`;
+      return html;
+    }
+
+    function statusHtml(status) {
+      const s = MODEL_STATUS[status] || MODEL_STATUS.error;
+      return `<span class="model-status">
+        <span>启用状态</span>
+        <span class="status-dot status-dot--${s.dot}"></span>
+        <span>${s.label}</span>
+      </span>`;
+    }
+
+    function getFiltered() {
+      const q = search.trim().toLowerCase();
+      return apis.filter(a => {
+        if (typeFilter && a.modelType !== typeFilter) return false;
+        if (statusFilter && a.modelStatus !== statusFilter) return false;
+        if (!q) return true;
+        return `${a.serviceName} ${a.modelName}`.toLowerCase().includes(q);
+      });
+    }
+
+    function canEnable(status) {
+      return status === 'stopped' || status === 'error';
+    }
+
+    function canDisable(status) {
+      return status === 'running';
+    }
+
+    function renderCardMenu(item) {
+      const open = openMenuId === item.id;
+      const enableDisabled = !canEnable(item.modelStatus);
+      const disableDisabled = !canDisable(item.modelStatus);
+      return `
+        <div class="card-menu-wrap">
+          <button type="button" class="card-menu${open ? ' active' : ''}" title="更多操作"
+            onclick="event.stopPropagation();toggleCardMenu('${item.id}')">⋯</button>
+          <div class="card-dropdown${open ? ' show' : ''}" onclick="event.stopPropagation()">
+            <button type="button" class="card-dropdown-item" ${enableDisabled ? 'disabled' : ''}
+              onclick="enableModel('${item.id}')">启用</button>
+            <button type="button" class="card-dropdown-item" ${disableDisabled ? 'disabled' : ''}
+              onclick="disableModel('${item.id}')">停用</button>
+            <div class="card-dropdown-divider"></div>
+            <button type="button" class="card-dropdown-item"
+              onclick="editModel('${item.id}')">编辑</button>
+            <button type="button" class="card-dropdown-item card-dropdown-item--danger"
+              onclick="deleteModel('${item.id}')">删除</button>
+          </div>
+        </div>`;
+    }
+
+    function renderCard(item) {
+      const selected = selectedId === item.id ? ' selected' : '';
+      return `
+        <div class="model-card${selected}" data-id="${item.id}" onclick="selectCard('${item.id}')" ondblclick="openModal('${item.id}')">
+          <div class="model-card-head">
+            ${modelIconHtml(item.icon)}
+            <div class="model-name">${item.modelName}</div>
+          </div>
+          <div class="model-tags">${modelTagsHtml(item)}</div>
+          <div class="model-card-foot">
+            ${statusHtml(item.modelStatus)}
+            ${renderCardMenu(item)}
+          </div>
+        </div>`;
+    }
+
+    function renderPagination(total) {
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (page > totalPages) page = totalPages;
+      const pages = [];
+      for (let i = 1; i <= Math.min(totalPages, 5); i++) pages.push(i);
+      return `
+        <div class="pagination">
+          <span>共 ${total} 条</span>
+          <div class="page-btns">
+            <button class="page-btn" onclick="goPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>&lt;</button>
+            ${pages.map(p => `<button class="page-btn${p === page ? ' active' : ''}" onclick="goPage(${p})">${p}</button>`).join('')}
+            <button class="page-btn" onclick="goPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>&gt;</button>
+          </div>
+          <select class="select" onchange="pageSize=+this.value;page=1;render()">
+            <option value="12"${pageSize===12?' selected':''}>12 条/页</option>
+            <option value="24"${pageSize===24?' selected':''}>24 条/页</option>
+            <option value="48"${pageSize===48?' selected':''}>48 条/页</option>
+          </select>
+        </div>`;
+    }
+
+    function renderContent() {
+      const filtered = getFiltered();
+      const start = (page - 1) * pageSize;
+      const pageItems = filtered.slice(start, start + pageSize);
+
+      const filterBar = `
+        <div class="filter-bar">
+          <select class="select" onchange="typeFilter=this.value;page=1;render()">
+            <option value="">全部模型类型</option>
+            <option value="chat"${typeFilter==='chat'?' selected':''}>文本生成</option>
+            <option value="audio"${typeFilter==='audio'?' selected':''}>语音识别</option>
+            <option value="image"${typeFilter==='image'?' selected':''}>图像理解</option>
+            <option value="rerank"${typeFilter==='rerank'?' selected':''}>重排序</option>
+            <option value="embedding"${typeFilter==='embedding'?' selected':''}>向量嵌入</option>
+          </select>
+          <select class="select" onchange="statusFilter=this.value;page=1;render()">
+            <option value="">全部模型状态</option>
+            <option value="starting"${statusFilter==='starting'?' selected':''}>启动中</option>
+            <option value="running"${statusFilter==='running'?' selected':''}>运行</option>
+            <option value="stopping"${statusFilter==='stopping'?' selected':''}>停止中</option>
+            <option value="stopped"${statusFilter==='stopped'?' selected':''}>停止</option>
+            <option value="error"${statusFilter==='error'?' selected':''}>异常</option>
+          </select>
+          <div class="search-group">
+            <input class="search-input" id="searchInput" placeholder="服务名称" value="${search.replace(/"/g,'&quot;')}">
+            <button class="btn-search" onclick="doSearch()">搜索</button>
+          </div>
+          <button class="btn-primary" onclick="openModal()">+ 添加服务</button>
+          <select class="select view-select" onchange="toast('原型演示：切换为列表视图')">
+            <option selected>卡片视图</option>
+            <option>列表视图</option>
+          </select>
+        </div>`;
+
+      const grid = pageItems.length
+        ? `<div class="model-grid">${pageItems.map(renderCard).join('')}</div>`
+        : `<div class="model-grid"><div class="empty">暂无匹配的模型服务，点击「添加服务」接入模型</div></div>`;
+
+      return filterBar + grid + renderPagination(filtered.length);
+    }
+
+    function doSearch() {
+      search = document.getElementById('searchInput')?.value || '';
+      page = 1;
+      render();
+    }
+
+    function goPage(p) {
+      const total = getFiltered().length;
+      const max = Math.max(1, Math.ceil(total / pageSize));
+      if (p < 1 || p > max) return;
+      page = p;
+      render();
+    }
+
+    function selectCard(id) {
+      if (openMenuId) { closeCardMenu(); return; }
+      selectedId = selectedId === id ? null : id;
+      render();
+    }
+
+    function toggleCardMenu(id) {
+      openMenuId = openMenuId === id ? null : id;
+      render();
+    }
+
+    function closeCardMenu() {
+      if (openMenuId === null) return;
+      openMenuId = null;
+      render();
+    }
+
+    function enableModel(id) {
+      const api = apis.find(a => a.id === id);
+      if (!api || !canEnable(api.modelStatus)) return;
+      closeCardMenu();
+      api.modelStatus = 'starting';
+      render();
+      toast(`正在启用 ${api.modelName}…`);
+      setTimeout(() => {
+        api.modelStatus = 'running';
+        api.updated = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        toast(`${api.modelName} 已启用`);
+        render();
+      }, 1000);
+    }
+
+    function disableModel(id) {
+      const api = apis.find(a => a.id === id);
+      if (!api || !canDisable(api.modelStatus)) return;
+      closeCardMenu();
+      api.modelStatus = 'stopping';
+      render();
+      toast(`正在停用 ${api.modelName}…`);
+      setTimeout(() => {
+        api.modelStatus = 'stopped';
+        api.updated = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        toast(`${api.modelName} 已停用`);
+        render();
+      }, 1000);
+    }
+
+    function editModel(id) {
+      closeCardMenu();
+      openModal(id);
+    }
+
+    function deleteModel(id) {
+      closeCardMenu();
+      deleteApi(id);
+    }
+
+    function render() {
+      document.getElementById('content').innerHTML = renderContent();
+      document.getElementById('searchInput')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') doSearch();
+      });
+    }
+
+    function updateDescCounter() {
+      const el = document.getElementById('formDesc');
+      const len = (el?.value || '').length;
+      document.getElementById('formDescCounter').textContent = `${len} / 200`;
+    }
+
+    function testLink() {
+      const url = document.getElementById('formModelUrl').value.trim();
+      const key = document.getElementById('formKey').value.trim();
+      if (!url) { toast('请先填写模型 URL'); return; }
+      if (!key) { toast('请先填写 KEY'); return; }
+      toast('正在测试连接…');
+      setTimeout(() => {
+        if (Math.random() < 0.12) toast('连接测试失败，请检查模型 URL 与 KEY');
+        else toast('连接测试成功');
+      }, 700);
+    }
+
+    function getFormData() {
+      return {
+        serviceName: document.getElementById('formServiceName').value.trim(),
+        apiFormat: document.getElementById('formApiFormat').value,
+        modelUrl: document.getElementById('formModelUrl').value.trim(),
+        key: document.getElementById('formKey').value.trim(),
+        modelName: document.getElementById('formModelName').value.trim(),
+        modelType: document.getElementById('formModelType').value,
+        maxLength: parseInt(document.getElementById('formMaxLength').value, 10) || 8192,
+        description: document.getElementById('formDesc').value.trim()
+      };
+    }
+
+    function validateForm(data) {
+      if (!data.serviceName) return '请填写服务名称';
+      if (!data.modelUrl) return '请填写模型 URL';
+      if (!data.key && !editingId) return '请填写 KEY';
+      if (!data.modelName) return '请填写模型名称';
+      if (!data.modelType) return '请选择模型类型';
+      if (!data.maxLength || data.maxLength < 1) return '请填写有效的 Max length';
+      return null;
+    }
+
+    function openModal(id) {
+      editingId = id || null;
+      const api = id ? apis.find(a => a.id === id) : null;
+      document.getElementById('modalTitle').textContent = api ? '编辑模型' : '接入模型';
+      document.getElementById('formServiceName').value = api?.serviceName || '';
+      document.getElementById('formApiFormat').value = api?.apiFormat || 'OpenAI';
+      document.getElementById('formModelUrl').value = api?.modelUrl || '';
+      document.getElementById('formKey').value = '';
+      document.getElementById('formKey').placeholder = api ? '留空则不修改' : '请输入';
+      document.getElementById('formModelName').value = api?.modelName || '';
+      document.getElementById('formModelType').value = api?.modelType || '';
+      document.getElementById('formMaxLength').value = api?.maxLength ?? 8192;
+      document.getElementById('formDesc').value = api?.description || '';
+      updateDescCounter();
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+      editingId = null;
+    }
+
+    function saveApi() {
+      const data = getFormData();
+      const err = validateForm(data);
+      if (err) { toast(err); return; }
+
+      const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+      if (editingId) {
+        const api = apis.find(a => a.id === editingId);
+        if (api) {
+          Object.assign(api, data, {
+            key: data.key ? 'sk-****' + data.key.slice(-4) : api.key,
+            modelStatus: api.modelStatus || 'running',
+            updated: now
+          });
+          toast('模型服务已更新');
+        }
+      } else {
+        const id = 'api-' + Date.now();
+        apis.unshift({
+          id,
+          ...data,
+          key: 'sk-****' + (data.key.slice(-4) || Math.random().toString(16).slice(2, 6)),
+          modelStatus: 'starting',
+          isDefault: false,
+          icon: 'purple',
+          updated: now
+        });
+        toast('模型接入成功，状态：启动中');
+      }
+      closeModal();
+      render();
+    }
+
+    function deleteApi(id) {
+      if (!confirm('确认删除该模型服务？')) return;
+      apis = apis.filter(a => a.id !== id);
+      if (selectedId === id) selectedId = null;
+      toast('已删除');
+      render();
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target.id === 'modalOverlay') closeModal();
+    });
+
+    document.addEventListener('click', () => closeCardMenu());
+
+    render();
+  </script>
+</body>
+</html>

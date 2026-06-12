@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全局管理 — xSparkOps</title>
+  <link rel="stylesheet" href="../../../共享/sidebar/sidebar.css">
+  <link rel="stylesheet" href="../../../共享/sidebar/theme-dark.css">
+  <link rel="stylesheet" href="../../../共享/gate/gate.css">
+  <link rel="stylesheet" href="global-admin.css">
+  <script src="../../../共享/gate/site-config.js"></script>
+  <script src="../../../共享/gate/gate.js"></script>
+</head>
+<body data-i18n-title="globalAdmin.pageTitle">
+  <div class="xs-app ga-app">
+    <aside id="sidebar"></aside>
+
+    <main class="ga-main">
+      <header class="ga-page-head">
+        <h1 data-i18n="globalAdmin.page.title">全局管理</h1>
+        <p data-i18n="globalAdmin.page.subtitle">平台超级管理员在 Global WorkSpace 下配置全平台资源与用户</p>
+        <span class="ga-super-badge" data-i18n="globalAdmin.superBadge">平台超级管理员 · Global WorkSpace</span>
+      </header>
+      <div id="gaContent"></div>
+    </main>
+  </div>
+
+  <script src="../../../共享/sidebar/sidebar-config.js"></script>
+  <script src="../../../共享/i18n/locales.js"></script>
+  <script src="../../../共享/i18n/i18n.js"></script>
+  <script src="../../../共享/sidebar/icons.js"></script>
+  <script src="../../../共享/sidebar/sidebar.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="global-admin.js"></script>
+  <script>
+    XSparkSidebar.init('#sidebar', {
+      activeId: 'global-admin',
+      onUserMenu({ id, label }) {
+        if (id === 'profile') alert(XSparkI18n.t('common.prototypeDemo', { label }));
+      },
+      onNavigate() {}
+    });
+    GlobalAdmin.init();
+  </script>
+</body>
+</html>

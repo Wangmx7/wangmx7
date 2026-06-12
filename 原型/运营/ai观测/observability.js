@@ -82,7 +82,7 @@ const Observability = {
   },
 
   getWorkspaceOptions() {
-    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Default Workspace'];
+    return typeof SIDEBAR_CONFIG !== 'undefined' ? SIDEBAR_CONFIG.workspace.options : ['人工智能实验室', 'IT 运维 Workspace', 'Global WorkSpace'];
   },
 
   init() {
@@ -99,9 +99,7 @@ const Observability = {
       });
     }
     document.getElementById('obsBackTraces')?.addEventListener('click', () => this.closeTraceDrawer());
-    if (typeof SIDEBAR_CONFIG !== 'undefined' && !this.traceFilters.workspace) {
-      this.traceFilters.workspace = SIDEBAR_CONFIG.workspace.label;
-    }
+    this.traceFilters.workspace = xsparkDefaultWorkspaceFilter();
     this.setTab('dashboard');
   },
 
